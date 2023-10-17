@@ -4,8 +4,16 @@ import os
 import requests 
 
 class FPL: 
-    def __init__(self): 
+    def __init__(self, user=None, cookies=None): 
+        self.user = user  
+        self.cookies = cookies 
         self.session = requests.Session() 
+        self.db_handler = base.DBHandler(
+            '5.133.180.245', 
+            'espleyh', 
+            'HE141005wgsb', 
+            'espleyh_fpl' 
+        ) 
 
     def user_picks(self): 
         pass 

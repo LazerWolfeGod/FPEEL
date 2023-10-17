@@ -6,11 +6,17 @@ import pulp
 class Player: 
     player_id: int 
     name: str 
-    composite_score: float  
-    composite_score3: float 
+    composite_score: float = None 
+    composite_score3: float = None 
     cost: float 
     team: int 
     position: int 
+    ownership_percentage: float 
+    form: float 
+    fixture_diff: float 
+    ppg: float 
+    xga: float 
+    total_points: int 
 
 @dataclass 
 class User: 
@@ -153,19 +159,27 @@ class ChipOptimiser(Optimiser):
 
 
 class RatingSystem: 
-    players_weights = {} 
+    players_weights = { 
+        'form': 0.25, 
+        'fixture_diff': 0.25, 
+        'ppg': 0.4, 
+        'xga': 0.1, 
+        'total_points': 0.1, 
+        'ownership_percentage': 0.1
+    } 
     team_weights = {} 
 
     @classmethod 
-    def get_player_rating(cls, player_information) -> float: 
-        pass
-
+    def get_player_rating(cls, player_information) -> float:  
+        return sum([getattr(player_information, key)*cls.players_weights[key] for key in cls.players_weights.keys()]) 
+    
     @classmethod 
     def get_team_rating(cls, team_information) -> float: 
         pass  
 
 
 def FDR(): 
+    # this might not even get made 
     pass 
 
 
