@@ -6,8 +6,6 @@ import pulp
 class Player: 
     player_id: int 
     name: str 
-    composite_score: float = None 
-    composite_score3: float = None 
     cost: float 
     team: int 
     position: int 
@@ -16,7 +14,9 @@ class Player:
     fixture_diff: float 
     ppg: float 
     xga: float 
-    total_points: int 
+    total_points: int  
+    composite_score: float = None 
+    composite_score3: float = None 
 
 @dataclass 
 class User: 

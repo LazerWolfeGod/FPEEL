@@ -2,12 +2,16 @@ from PyQt6 import QtCore, QtWidgets, QtGui, QtMultimedia
 from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QColorDialog, QFontDialog, QVBoxLayout, QHBoxLayout 
 from PyQt6.QtGui import QFont, QPixmap, QPainter, QColor 
 from PyQt6.QtCore import QUrl 
-from PyQt6.QtMultimedia import QSoundEffect  
+from PyQt6.QtMultimedia import QSoundEffect   
+from dataclasses import dataclass 
 import requests 
 import mysql.connector 
 import json 
-import sys   
-import utils 
+import sys    
+import os 
+import utils  
+import base 
+import fpl 
 
 
 class WindowParent(QMainWindow): 
@@ -38,7 +42,7 @@ class WindowParent(QMainWindow):
     def open_window(self, window): 
         if window != 4: 
             self.close() 
-        self.new_window = self.window_switcher[window](self.fpl, previous_window=self.window_type) 
+        self.new_window = self.window_switcher[window](self.fpl, previous_window=self.window_id) 
         self.new_window.show()  
     
     def back(self): 
@@ -86,7 +90,61 @@ class InfoLabel(QLabel):
         self.setToolTip(text) 
     
 class LoginWindow(WindowParent): 
-    pass 
+    def __init__(self, previous_window=None): 
+        super().__init__(previous_window) 
+        self.window_id = 0  
+        self.setup_ui() 
+        self.apply_colours()  
+    
+    def setup_ui(self): 
+        self.setFixedSize(500, 500) 
+        self.title_label = QtWidgets.QLabel(self) 
+        self.title_label.setGeometry(QtCore.QRect(0, 10, 500, 50)) 
+        self.title_label.colour = 1 
+        self.title_label.setFont(QFont(self.settings.font, 20))  
+        self.title_label.setText('FPL Helper') 
+
+        self.email_edit = QtWidgets.QLineEdit(self) 
+        self.email_edit.setGeometry(QtCore.QRect(50, 90, 200, 20)) 
+        self.email_edit.colour = 1 
+        self.email_edit.setPlaceholderText('Enter Email') 
+        self.email_edit.setFont(QFont(self.settings.font, 8)) 
+
+        self.password_edit = QtWidgets.QLineEdit(self) 
+        self.password_edit.setGeometry(QtCore.QRect(50, 140, 200, 20)) 
+        self.password_edit.colour = 1 
+        self.password_edit.setPlaceholderText('Enter Password') 
+        self.password_edit.setFont(QFont(self.settings.font, 8)) 
+        self.password_edit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password) 
+
+        self.username_label = QtWidgets.QLabel(self) 
+        self.username_label.setGeometry(QtCore.QRect(50, 70, 200, 20)) 
+        self.username_label.colour = 0  
+        self.username_label.setText('Username:') 
+        self.username_label.setFont(QFont(self.settings.font, 8))  
+
+        self.password_label = QtWidgets.QLabel(self) 
+        self.password_label.setGeometry(QtCore.QRect(50, 120, 200, 20)) 
+        self.password_label.colour = 0 
+        self.password_label.setText('Password:') 
+        self.password_label.setFont(QFont(self.settings.font, 8))  
+
+        self.login_button = CustomButton(self) 
+        self.login_button.setGeometry(QtCore.QRect(50, 170, 200, 20)) 
+        self.login_button.colour = 1 
+        self.login_button.setText('Login') 
+        self.login_button.setFont(QFont(self.settings.font, 8)) 
+        self.login_button.clicked.connect(self.get_login)  
+
+        self.exit_button = CustomButton(self) 
+        self.exit_button.setGeometry(QtCore.QRect(50, 200, 200, 20)) 
+        self.exit_button.colour = 1 
+        self.exit_button.setText('Exit') 
+        self.exit_button.setFont(QFont(self.settings.font, 8)) 
+        self.exit_button.clicked.connect(lambda: self.open_window(5)) 
+
+    def get_login(self): 
+        pass 
 
 class MainWindow(WindowParent): 
     pass 
@@ -104,8 +162,52 @@ class ExitWindow(WindowParent):
     pass 
 
 class Settings: 
-    pass 
+    def __init__(self):   
+        self.settings_path = os.path.join(os.getcwd(), 'json_data', 'settings.json')   
+        try: 
+            settings = utils.read_json(self.settings_path) 
+        except json.JSONDecodeError: 
+            settings = { 
+                'primary_colour': None, 
+                'secondary_colour': None, 
+                'font': 'Consolas', 
+                'button_sound': None, 
+                'button_volume': 1 
+            }  
+            utils.write_json(settings, self.settings_path) 
+        self.colour_scheme = ColourScheme(
+            settings['primary_colour'], 
+            settings['secondary_colour'] 
+        ) 
+        self.font = settings['font'] 
+        self.button_sound = settings['button_sound'] 
+        self.button_volume = settings['button_volume'] 
+        self.colour_distance = 100 
+        self.settings_switcher = { 
+            0: self.colour_scheme.primary_colour, 
+            1: self.colour_scheme.secondary_colour, 
+            2: self.font, 
+            3: self.button_sound, 
+            4: self.button_volume 
+        } 
+    
+    def change_settings(self, settings_dict): 
+        settings = utils.read_json(self.settings_path) 
+        for k in settings_dict: 
+            settings[k] = settings_dict[k] 
+            self.settings_switcher[k] = settings_dict[k] 
+        utils.write_json(self.settings_path, settings) 
 
+@dataclass 
 class ColourScheme: 
-    pass 
+    primary_colour: str = None 
+    secondary_colour: str = None 
+    error_colour = 'rgb(255, 0, 0);' 
 
+
+if __name__ == '__main__': 
+    app = QtWidgets.QApplication(sys.argv) 
+    fpl = fpl.FPL() 
+    window = LoginWindow(fpl) 
+    window.show() 
+    sys.exit(app.exec()) 
