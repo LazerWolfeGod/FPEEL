@@ -33,7 +33,7 @@ def fetch(session, url, retries=10, cooldown=1):
                 raise Exception("Too many retries") 
             time.sleep(cooldown)  
 
-def get_account_cookies(session, email, password, retries=10, cooldown=1): 
+def get_account_cookies(session, email, password, retries=1, cooldown=1): 
     retries_count = 0 
     data = {
         'login': email, 
@@ -50,12 +50,12 @@ def get_account_cookies(session, email, password, retries=10, cooldown=1):
             with session.post(api_urls['login'], data=data, headers=headers): 
                 return { 
                     'pl_profile': session.cookies['pl_profile'], 
-                    'datadome': session.cookies['datadome']  
-                }
+                    'datadome': session.cookies['datadome'] 
+                } 
         except: 
             retries_count += 1 
             if retries_count > retries: 
-                raise Exception("Too many retries") 
+                return False 
             time.sleep(cooldown)  
 
 def get_current_gameweek(session): 
@@ -72,4 +72,3 @@ def convert_team_short(team_idea):
 
 def convert_position(position_id): 
     pass  
-

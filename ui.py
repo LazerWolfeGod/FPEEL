@@ -15,7 +15,7 @@ import fpl
 
 
 class WindowParent(QMainWindow): 
-    def __init__(self, fpl, previous_window=None): 
+    def __init__(self, fpl=None, previous_window=None): 
         super().__init__() 
         self.fpl = fpl 
         self.previous_window = previous_window  
@@ -127,7 +127,12 @@ class LoginWindow(WindowParent):
         self.password_label.setGeometry(QtCore.QRect(50, 120, 200, 20)) 
         self.password_label.colour = 0 
         self.password_label.setText('Password:') 
-        self.password_label.setFont(QFont(self.settings.font, 8))  
+        self.password_label.setFont(QFont(self.settings.font, 8))   
+
+        self.error_label = QtWidgets.QLabel(self) 
+        self.error_label.setGeometry(QtCore.QRect(100, 70, 200, 20))  
+        self.error_label.setStyleSheet(f'color: {self.settings.colour_scheme.error_colour}')
+        self.error_label.setFont(QFont(self.settings.font, 8))  
 
         self.login_button = CustomButton(self) 
         self.login_button.setGeometry(QtCore.QRect(50, 170, 200, 20)) 
@@ -143,11 +148,65 @@ class LoginWindow(WindowParent):
         self.exit_button.setFont(QFont(self.settings.font, 8)) 
         self.exit_button.clicked.connect(lambda: self.open_window(5)) 
 
-    def get_login(self): 
-        pass 
+    def get_login(self):  
+        valid = utils.get_account_cookies(requests.Session(), self.email_edit.text(), self.password_edit.text()) 
+        if valid: 
+            self.fpl = fpl.FPL(cookies=valid) 
+            self.open_window(1)  
+        else: 
+            self.error_label.setText('Invalid Login') 
 
 class MainWindow(WindowParent): 
-    pass 
+    def __init__(self, previous_window): 
+        super().__init__(previous_window)  
+        self.window_type = 1 
+        self.setup_ui() 
+        self.apply_colours() 
+    
+    def setup_ui(self): 
+        self.setFixedSize(1000, 1000)  
+        self.title_label = QtWidgets.QLabel(self) 
+        self.title_label.setGeometry(QtCore.QRect(0, 10, 1000, 100))  
+        self.title_label.colour = 1 
+        self.title_label.setFont(QFont(self.settings.font, 20)) 
+        self.title_label.setText('FPL Companion')  
+
+        self.rank_label = QtWidgets.QLabel(self) 
+        self.rank_label.setGeometry(QtCore.QRect(350, 150, 250, 50)) 
+        self.rank_label.colour = 0 
+        self.rank_label.setFont(QFont(self.settings.font, 16)) 
+        self.rank_label.setText('Current Rank: ')  
+
+        self.lineup_button = CustomButton(self) 
+        self.lineup_button.setGeometry(QtCore.QRect(300, 250, 400, 80)) 
+        self.lineup_button.colour = 1 
+        self.lineup_button.setFont(QFont(self.settings.font, 14)) 
+        self.lineup_button.setText('View my lineup')   
+
+        self.league_button = CustomButton(self) 
+        self.league_button.setGeometry(QtCore.QRect(300, 330, 400, 80)) 
+        self.league_button.colour = 1 
+        self.league_button.setFont(QFont(self.settings.font, 14)) 
+        self.league_button.setText('Leagues Viewer') 
+
+        self.database_button = CustomButton(self) 
+        self.database_button.setGeometry(QtCore.QRect(300, 410, 400, 80))  
+        self.database_button.colour = 1 
+        self.database_button.setFont(QFont(self.settings.font, 14)) 
+        self.database_button.setText('Player Database')  
+
+        self.settings_button = CustomButton(self) 
+        self.settings_button.setGeometry(QtCore.QRect(300, 490, 400, 80)) 
+        self.settings_button.colour = 1 
+        self.settings_button.setFont(QFont(self.settings.font, 14)) 
+        self.settings_button.setText('Settings')   
+        self.settings_button.clicked.connect(lambda: self.open_window(2)) 
+
+        self.exit_button = CustomButton(self) 
+        self.exit_button.setGeometry(QtCore.QRect(300, 570, 400, 80)) 
+        self.exit_button.colour = 1 
+        self.exit_button.setFont(QFont(self.settings.font, 14)) 
+        self.exit_button.setText('Exit') 
 
 class LineupWindow(WindowParent): 
     pass 
@@ -159,7 +218,16 @@ class SettingsWindow(WindowParent):
     pass 
 
 class ExitWindow(WindowParent): 
-    pass 
+    def __init__(self, previous_window=None): 
+        super().__init__(previous_window) 
+        self.window_id = 5 
+        self.setup_ui() 
+        self.apply_colours() 
+    
+    def setup_ui(self): 
+        pass 
+
+
 
 class Settings: 
     def __init__(self):   
@@ -207,7 +275,6 @@ class ColourScheme:
 
 if __name__ == '__main__': 
     app = QtWidgets.QApplication(sys.argv) 
-    fpl = fpl.FPL() 
-    window = LoginWindow(fpl) 
+    window = LoginWindow() 
     window.show() 
     sys.exit(app.exec()) 
