@@ -127,10 +127,20 @@ class ChipOptimiser(Optimiser):
         return result_11+result_bench
 
 
-def player_rating(player): 
-    pass 
+class RatingSystem: 
+    players_weights = {} 
+    team_weights ={} 
 
-def team_rating(team): 
+    @classmethod 
+    def get_player_rating(cls, player_information) -> float: 
+        pass
+
+    @classmethod 
+    def get_team_rating(cls, team_information) -> float: 
+        pass  
+
+
+def FDR(): 
     pass 
 
 
