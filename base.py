@@ -1,4 +1,5 @@
 from dataclasses import dataclass 
+import mysql.connector 
 import pulp 
 
 @dataclass 
@@ -29,7 +30,31 @@ class League:
     standings: list 
 
 class DBHandler: 
-    pass 
+    def __init__(self, host, user, password, database): 
+        self.host = host 
+        self.user = user 
+        self.password = password 
+        self.database = database 
+    
+    def open_connection(self): 
+        connection = mysql.connector.connect( 
+            host=self.host, 
+            user=self.user, 
+            password=self.password, 
+            database=self.database 
+        ) 
+        return connection   
+    
+    # MAYBE DO THIS SHIT IDFK
+
+    def execute_query(self, connection, query, data=None): 
+        pass 
+
+    def execute_update(self, connection, query, data=None, data_to_update=None): 
+        pass 
+
+    def close_connection(self, connection): 
+        connection.close() 
 
 class Optimiser: 
     lineup_size = 11 
@@ -129,7 +154,7 @@ class ChipOptimiser(Optimiser):
 
 class RatingSystem: 
     players_weights = {} 
-    team_weights ={} 
+    team_weights = {} 
 
     @classmethod 
     def get_player_rating(cls, player_information) -> float: 
