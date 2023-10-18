@@ -23,7 +23,7 @@ def read_json(path):
     with open(path, 'r') as f: 
         return json.load(f) 
 
-def fetch(session, url, cookies=None, retries=10, cooldown=1):
+def fetch(session, url, cookies=None, retries=2, cooldown=1):
     retries_count = 0 
     while True: 
         try: 
@@ -92,12 +92,5 @@ def create_user_object(session, cookies):
     )
 
 
-session = requests.Session() 
-cookies = get_account_cookies(session, 'harryespley@outlook.com', 'James141005!') 
-
-user = create_user_object(session, cookies) 
-print(user.__dict__) 
-for x in user.__dict__: 
-    print(x)  
 
 

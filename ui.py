@@ -3,7 +3,8 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QColorDia
 from PyQt6.QtGui import QFont, QPixmap, QPainter, QColor 
 from PyQt6.QtCore import QUrl 
 from PyQt6.QtMultimedia import QSoundEffect   
-from dataclasses import dataclass 
+from dataclasses import dataclass  
+from fpl import FPL 
 import requests 
 import mysql.connector 
 import json 
@@ -11,13 +12,10 @@ import sys
 import os 
 import utils  
 import base 
-import fpl 
-
 
 class WindowParent(QMainWindow): 
-    def __init__(self, fpl=None, previous_window=None): 
+    def __init__(self, previous_window=None): 
         super().__init__() 
-        self.fpl = fpl 
         self.previous_window = previous_window  
         self.settings = Settings()  
         self.setStyleSheet(f'background-color: {self.settings.colour_scheme.primary_colour}') 
@@ -36,18 +34,18 @@ class WindowParent(QMainWindow):
     
     def refresh(self): 
         self.close() 
-        self.new_window = self.window_switcher[self.window_id](self.fpl, previous_window=self.previous_window)  
+        self.new_window = self.window_switcher[self.window_id](fpl=self.fpl, previous_window=self.previous_window)  
         self.new_window.show()   
 
     def open_window(self, window): 
         if window != 4: 
             self.close() 
-        self.new_window = self.window_switcher[window](self.fpl, previous_window=self.window_id) 
+        self.new_window = self.window_switcher[window](fpl=self.fpl, previous_window=self.window_id) 
         self.new_window.show()  
     
     def back(self): 
         if self.previous_window: 
-            self.open_window(self.previous_window) 
+            self.open_window(self.previous_window)  
     
     def apply_colour(self, widget): 
         widget.setStyleSheet(self.colour_switcher[widget.colour]) 
@@ -146,19 +144,21 @@ class LoginWindow(WindowParent):
         self.exit_button.colour = 1 
         self.exit_button.setText('Exit') 
         self.exit_button.setFont(QFont(self.settings.font, 8)) 
-        self.exit_button.clicked.connect(lambda: self.open_window(5)) 
-
+        self.exit_button.clicked.connect(lambda: self.open_window(5))  
+    
     def get_login(self):  
-        valid = utils.get_account_cookies(requests.Session(), self.email_edit.text(), self.password_edit.text()) 
-        if valid: 
-            self.fpl = fpl.FPL(cookies=valid) 
-            self.open_window(1)  
+        session = requests.Session() 
+        cookies = utils.get_account_cookies(session, self.email_edit.text(), self.password_edit.text()) 
+        if cookies: 
+            self.fpl = FPL(session, user=utils.create_user_object(session, cookies))
+            self.open_window(1) 
         else: 
             self.error_label.setText('Invalid Login') 
 
 class MainWindow(WindowParent): 
-    def __init__(self, fpl, previous_window): 
-        super().__init__(fpl, previous_window)  
+    def __init__(self, previous_window, fpl): 
+        super().__init__(previous_window) 
+        self.fpl = fpl 
         self.window_type = 1 
         self.setup_ui() 
         self.apply_colours() 
@@ -209,7 +209,7 @@ class MainWindow(WindowParent):
         self.exit_button.setText('Exit')  
     
     def get_current_rank(self): 
-        return self.fpl.get_overall_rank() 
+        return self.fpl.get_current_user_rank()  
 
 class LineupWindow(WindowParent): 
     pass 
@@ -229,8 +229,6 @@ class ExitWindow(WindowParent):
     
     def setup_ui(self): 
         pass 
-
-
 
 class Settings: 
     def __init__(self):   
@@ -274,7 +272,6 @@ class ColourScheme:
     primary_colour: str = None 
     secondary_colour: str = None 
     error_colour = 'rgb(255, 0, 0);' 
-
 
 if __name__ == '__main__': 
     app = QtWidgets.QApplication(sys.argv) 
