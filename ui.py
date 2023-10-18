@@ -175,7 +175,7 @@ class MainWindow(WindowParent):
         self.rank_label.setGeometry(QtCore.QRect(350, 150, 250, 50)) 
         self.rank_label.colour = 0 
         self.rank_label.setFont(QFont(self.settings.font, 16)) 
-        self.rank_label.setText(f'Current Rank: {self.get_current_rank()}' 
+        self.rank_label.setText(f'Current Rank: {self.get_current_rank()}') 
 
         self.lineup_button = CustomButton(self) 
         self.lineup_button.setGeometry(QtCore.QRect(300, 250, 400, 80)) 
@@ -209,7 +209,7 @@ class MainWindow(WindowParent):
         self.exit_button.setText('Exit')  
     
     def get_current_rank(self): 
-        return self.fpl.user.overall_rank 
+        return self.fpl.get_overall_rank() 
 
 class LineupWindow(WindowParent): 
     pass 

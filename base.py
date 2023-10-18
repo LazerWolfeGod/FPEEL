@@ -20,15 +20,10 @@ class Player:
 
 @dataclass 
 class User: 
-    user_id: int 
+    id: int 
     name: str   
-    email: str 
-    password: str 
-    remaining_budget: float 
-    players: list 
-    gameweek_score: int 
-    total_score: int  
-    overall_rank: int 
+    email: str  
+    cookies: dict  
 
 @dataclass 
 class League: 
@@ -176,8 +171,7 @@ class RatingSystem:
     
     @classmethod 
     def get_team_rating(cls, team_information) -> float: 
-        pass  
-
+        pass 
 
 def FDR(): 
     # this might not even get made 
