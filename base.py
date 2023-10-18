@@ -29,6 +29,7 @@ class User:
     gameweek_score: int 
     total_score: int  
     overall_rank: int 
+    boobs: int 
 
 @dataclass 
 class League: 
