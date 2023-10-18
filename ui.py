@@ -86,7 +86,8 @@ class InfoLabel(QLabel):
     
     def setInfoText(self, text=None): 
         self.setToolTip(text) 
-    
+
+
 class LoginWindow(WindowParent): 
     def __init__(self, previous_window=None): 
         super().__init__(previous_window) 
@@ -95,56 +96,56 @@ class LoginWindow(WindowParent):
         self.apply_colours()  
     
     def setup_ui(self): 
-        self.setFixedSize(500, 500) 
+        self.setFixedSize(750, 750) 
         self.title_label = QtWidgets.QLabel(self) 
-        self.title_label.setGeometry(QtCore.QRect(0, 10, 500, 50)) 
+        self.title_label.setGeometry(QtCore.QRect(0, 15, 750, 75)) 
         self.title_label.colour = 1 
-        self.title_label.setFont(QFont(self.settings.font, 20))  
+        self.title_label.setFont(QFont(self.settings.font, 30))  
         self.title_label.setText('FPL Helper') 
 
         self.email_edit = QtWidgets.QLineEdit(self) 
-        self.email_edit.setGeometry(QtCore.QRect(50, 90, 200, 20)) 
+        self.email_edit.setGeometry(QtCore.QRect(75, 135, 300, 30)) 
         self.email_edit.colour = 1 
         self.email_edit.setPlaceholderText('Enter Email') 
-        self.email_edit.setFont(QFont(self.settings.font, 8)) 
+        self.email_edit.setFont(QFont(self.settings.font, 12)) 
 
         self.password_edit = QtWidgets.QLineEdit(self) 
-        self.password_edit.setGeometry(QtCore.QRect(50, 140, 200, 20)) 
+        self.password_edit.setGeometry(QtCore.QRect(75, 210, 300, 30)) 
         self.password_edit.colour = 1 
         self.password_edit.setPlaceholderText('Enter Password') 
-        self.password_edit.setFont(QFont(self.settings.font, 8)) 
+        self.password_edit.setFont(QFont(self.settings.font, 12)) 
         self.password_edit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password) 
 
-        self.username_label = QtWidgets.QLabel(self) 
-        self.username_label.setGeometry(QtCore.QRect(50, 70, 200, 20)) 
-        self.username_label.colour = 0  
-        self.username_label.setText('Username:') 
-        self.username_label.setFont(QFont(self.settings.font, 8))  
+        self.Email_label = QtWidgets.QLabel(self) 
+        self.Email_label.setGeometry(QtCore.QRect(75, 105, 300, 30)) 
+        self.Email_label.colour = 0  
+        self.Email_label.setText('Email:') 
+        self.Email_label.setFont(QFont(self.settings.font, 12))  
 
         self.password_label = QtWidgets.QLabel(self) 
-        self.password_label.setGeometry(QtCore.QRect(50, 120, 200, 20)) 
+        self.password_label.setGeometry(QtCore.QRect(75, 180, 300, 30)) 
         self.password_label.colour = 0 
         self.password_label.setText('Password:') 
-        self.password_label.setFont(QFont(self.settings.font, 8))   
+        self.password_label.setFont(QFont(self.settings.font, 12))   
 
         self.error_label = QtWidgets.QLabel(self) 
-        self.error_label.setGeometry(QtCore.QRect(100, 70, 200, 20))  
+        self.error_label.setGeometry(QtCore.QRect(150, 105, 300, 30)) 
         self.error_label.setStyleSheet(f'color: {self.settings.colour_scheme.error_colour}')
-        self.error_label.setFont(QFont(self.settings.font, 8))  
+        self.error_label.setFont(QFont(self.settings.font, 12))  
 
         self.login_button = CustomButton(self) 
-        self.login_button.setGeometry(QtCore.QRect(50, 170, 200, 20)) 
+        self.login_button.setGeometry(QtCore.QRect(75, 255, 300, 30)) 
         self.login_button.colour = 1 
         self.login_button.setText('Login') 
-        self.login_button.setFont(QFont(self.settings.font, 8)) 
+        self.login_button.setFont(QFont(self.settings.font, 12)) 
         self.login_button.clicked.connect(self.get_login)  
 
         self.exit_button = CustomButton(self) 
-        self.exit_button.setGeometry(QtCore.QRect(50, 200, 200, 20)) 
+        self.exit_button.setGeometry(QtCore.QRect(75, 300, 300, 30)) 
         self.exit_button.colour = 1 
         self.exit_button.setText('Exit') 
-        self.exit_button.setFont(QFont(self.settings.font, 8)) 
-        self.exit_button.clicked.connect(lambda: self.open_window(5))  
+        self.exit_button.setFont(QFont(self.settings.font, 12)) 
+        self.exit_button.clicked.connect(lambda: self.open_window(5))   
     
     def get_login(self):  
         session = requests.Session() 
@@ -153,13 +154,13 @@ class LoginWindow(WindowParent):
             self.fpl = FPL(session, user=utils.create_user_object(session, cookies))
             self.open_window(1) 
         else: 
-            self.error_label.setText('Invalid Login') 
+            self.error_label.setText('Invalid Login')
 
 class MainWindow(WindowParent): 
     def __init__(self, previous_window, fpl): 
         super().__init__(previous_window) 
         self.fpl = fpl 
-        self.window_type = 1 
+        self.window_id = 1 
         self.setup_ui() 
         self.apply_colours() 
     
