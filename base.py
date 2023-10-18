@@ -27,7 +27,8 @@ class User:
     remaining_budget: float 
     players: list 
     gameweek_score: int 
-    total_score: int 
+    total_score: int  
+    overall_rank: int 
 
 @dataclass 
 class League: 
