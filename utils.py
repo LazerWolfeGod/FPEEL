@@ -1,6 +1,7 @@
 import base 
 import time  
-import json  
+import json   
+import os 
 import requests 
 
 base_url = 'https://fantasy.premierleague.com/api/' 
@@ -15,7 +16,7 @@ api_urls = {
     'given-team': '{}entry/{{}}/event/{{}}/'.format(base_url) 
 }   
 
-def write_json(data, path): 
+def write_json(data: json, path: str): 
     with open(path, 'w') as f: 
         json.dump(data, f, indent=4)  
 
@@ -30,7 +31,7 @@ def fetch(session, url, cookies=None, retries=2, cooldown=1):
             with session.get(url, cookies=cookies) as response: 
                 return response.json() 
         except: 
-            retries_count += 1  
+            retries_count += 1 
             if retries_count == retries: 
                 raise Exception("Too many retries") 
             time.sleep(cooldown)  
