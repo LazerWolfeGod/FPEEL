@@ -71,7 +71,7 @@ class CustomButton(QPushButton):
 
     def play_sound(self, volume): 
         self.sound_effect.setVolume(volume) 
-        self.sound_effect.play() 
+        self.sound_effect.play()
 
     def handle_clicked(self): 
         if self.parent: 
@@ -79,7 +79,7 @@ class CustomButton(QPushButton):
 
 class Settings: 
     def __init__(self): 
-        self.settings_path = os.path.join(os.getcwd(), 'json_data', 'settings.json') 
+        self.settings_path = os.path.join(os.getcwd(), 'json_data', 'settings.json')   
         try: 
             settings = utils.read_json(self.settings_path)  
         except json.JSONDecodeError: 
@@ -89,19 +89,27 @@ class Settings:
                 'font': 'Arial', 
                 'button_sound': None, 
                 'button_volume': None 
-            } 
+            }  
+
             utils.write_json(settings, self.settings_path) 
         self.colour_scheme = ColourScheme(settings['primary_colour'], settings['secondary_colour']) 
         self.font = settings['font'] 
         self.button_sound = settings['button_sound'] 
-        self.button_volume = settings['button_volume'] 
+        self.button_volume = settings['button_volume']  
+        self.settings_switcher = { 
+            0: self.colour_scheme.primary_colour, 
+            1: self.colour_scheme.secondary_colour, 
+            2: self.font, 
+            3: self.button_sound, 
+            4: self.button_volume 
+        }
     
     def change_settings(self, settings_dict): 
         settings = utils.read_json(self.settings_path)
         for k in settings_dict: 
             settings[k] = settings_dict[k] 
             self.settings_switcher[k] = settings_dict[k] 
-        utils.write_json(self.settings_path, settings)  
+        utils.write_json(settings, self.settings_path)   
 
 @dataclass 
 class ColourScheme: 
@@ -180,7 +188,7 @@ class LoginWindow(WindowParent):
             self.fpl.session.cookies = fpl_cookies  
             self.open_window(1) 
         else:     
-            raise Exception('Invalid Login') 
+            raise Exception('Login failed!') 
 
 class MainWindow(WindowParent): 
     def __init__(self, previous_window, fpl): 
@@ -394,23 +402,23 @@ class SettingsWindow(WindowParent):
         super().__init__(previous_window, fpl) 
         self.window_id = 5 
         self.settings_dict = {} 
-        self.recent_press = None 
-        self.section_switcher = { 
-            'colour': self.open_font_settings, 
-            'font': self.open_font_settings, 
-            'button_sound': self.open_sound_settings
-        }  
+        self.recent_press = None  
         self.setup_ui() 
+        self.section_switcher = { 
+            self.colour_button: self.open_colour_settings, 
+            self.font_button: self.open_font_settings, 
+            self.sound_button: self.open_sound_settings
+        }    
         self.apply_colours(self) 
 
     def settings_window_refresh(self): 
         self.close() 
-        self.window = self.window_switcher[self.window.type](self.window.previous_window, self.window.fpl) 
+        self.window = self.window_switcher[self.window_id](self.previous_window, self.fpl) 
         if self.recent_press != None: 
             self.section_switcher[self.recent_press]() 
         self.window.show()   
-    
-    def slider_value_changed(self, value): 
+
+    def volume_value_changed(self, value): 
         self.sender().parent().volume_entry.setText(str(value)) 
 
     def fill_colour_widget(self): 
@@ -424,14 +432,14 @@ class SettingsWindow(WindowParent):
         self.colour_widget.primary_button.colour = 1 
         self.colour_widget.primary_button.setFont(QFont(self.settings.font, 8)) 
         self.colour_widget.primary_button.setText('Primary Colour') 
-        self.colour_widget.primary_button.clicked.connect(self.open_colour_window)  
+        self.colour_widget.primary_button.clicked.connect(lambda: self.open_colour_window('primary_colour'))  
         
         self.colour_widget.secondary_button = QPushButton(self.colour_widget) 
         self.colour_widget.secondary_button.setGeometry(QtCore.QRect(125, 50, 100, 40)) 
         self.colour_widget.secondary_button.colour = 1 
         self.colour_widget.secondary_button.setFont(QFont(self.settings.font, 8)) 
         self.colour_widget.secondary_button.setText('Secondary Colour') 
-        self.colour_widget.secondary_button.clicked.connect(self.open_colour_window) 
+        self.colour_widget.secondary_button.clicked.connect(lambda: self.open_colour_window('secondary_colour')) 
     
     def fill_font_widget(self): 
         self.font_widget.info_label = QtWidgets.QLabel(self.font_widget) 
@@ -458,34 +466,58 @@ class SettingsWindow(WindowParent):
         self.sound_widget.slider.setMinimum(0) 
         self.sound_widget.slider.setMaximum(100) 
         self.sound_widget.slider.setValue(self.settings.button_volume)  
-        self.sound_widget.slider.valueChanged.connect(self.slider_value_changed) 
+        self.sound_widget.slider.valueChanged.connect(self.volume_value_changed) 
 
         self.sound_widget.volume_entry = QtWidgets.QLineEdit(self.sound_widget) 
         self.sound_widget.volume_entry.setGeometry(QtCore.QRect(250, 50, 100, 40)) 
         self.sound_widget.volume_entry.colour = 1 
         self.sound_widget.volume_entry.setFont(QFont(self.settings.font, 8)) 
-        self.sound_widget.volume_entry.setText(str(self.settings.button_volume)) 
+        self.sound_widget.volume_entry.setText(str(self.settings.button_volume))  
 
-    def open_colour_settings(self): 
+        self.sound_widget.sound_box = QtWidgets.QComboBox(self.sound_widget) 
+        self.sound_widget.sound_box.setGeometry(QtCore.QRect(0, 100, 200, 40)) 
+        self.sound_widget.sound_box.colour = 1 
+        self.sound_widget.sound_box.setFont(QFont(self.settings.font, 8)) 
+        self.sound_widget.sound_box.addItems([x for x in os.listdir(os.path.join(os.getcwd(), 'sounds')) if x.endswith('.wav')]) 
+
+    def open_colour_settings(self):  
+        self.recent_press = self.sender() 
         self.stacked_layout.setCurrentWidget(self.colour_widget) 
 
     def open_font_settings(self): 
         self.stacked_layout.setCurrentWidget(self.font_widget)  
 
     def open_sound_settings(self): 
-        self.stacked_layout.setCurrentWidget(self.sound_widget)  
+        self.stacked_layout.setCurrentWidget(self.sound_widget) 
+
+    def open_colour_window(self, section): 
+        col = {'primary_colour': 0, 'secondary_colour': 1} 
+        colour = QColorDialog.getColor() 
+        rgb_list = [colour.red(), colour.green(), colour.blue()] 
+        if colour.isValid():  
+            if float(utils.colour_distance(rgb_list, utils.string_to_rgb(self.settings.settings_switcher[col[section]]))) > 20: 
+                rgb_string = utils.rgb_to_string(rgb_list) 
+                self.add_to_settings(section, rgb_string) 
+            else: 
+                self.error_label.setText('Colour too similiar to other colour!') 
 
     def open_font_window(self): 
-        pass 
+        font, ok = QFontDialog.getFont() 
+        if ok: 
+            self.settings_dict['font'] = font.family()  
 
-    def open_colour_window(self): 
-        pass 
-
-    def add_to_settings(self): 
-        pass 
+    def add_to_settings(self, key, value): 
+        self.settings_dict[key] = value 
 
     def apply_settings(self): 
-        pass    
+        if self.recent_press == 'button_sound': 
+            self.settings_dict['button_sound'] = self.sound_box.currentText() 
+            self.settings_dict['button_volume'] = int(self.volume_entry.text()) 
+        self.settings.change_settings(self.settings_dict) 
+        self.settings_window_refresh()  
+    
+    def log_out(self): 
+        pass 
     
     def setup_ui(self):  
         self.setFixedSize(600, 600) 
@@ -534,7 +566,12 @@ class SettingsWindow(WindowParent):
         self.logout_button.setGeometry(QtCore.QRect(0, 270, 150, 40)) 
         self.logout_button.colour = 1 
         self.logout_button.setFont(QFont(self.settings.font, 8)) 
-        self.logout_button.setText('Log Out')  
+        self.logout_button.setText('Log Out')   
+
+        self.error_label = QtWidgets.QLabel(self) 
+        self.error_label.setGeometry(QtCore.QRect(0, 500, 150, 40)) 
+        self.error_label.setStyleSheet(f'color: {self.settings.colour_scheme.error_colour}') 
+        self.error_label.setFont(QFont(self.settings.font, 8)) 
 
         self.main_widget = QWidget(self) 
         self.main_widget.setGeometry(QtCore.QRect(200, 150, 350, 350))    

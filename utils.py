@@ -20,7 +20,8 @@ def update_static_data(session):
     data = fetch(session, api_urls['static']) 
     write_json(data, os.path.join(os.getcwd(), 'json_data', 'static.json')) 
 
-def write_json(data: json, path: str): 
+def write_json(data: json, path: str):  
+    print(path, "PATHHH") 
     with open(path, 'w') as f: 
         json.dump(data, f, indent=4)  
 
@@ -114,7 +115,19 @@ def create_player_object(player_id):
         data['total_points'], 
         None, 
         None 
-    )
+    ) 
+
+def colour_distance(c1, c2): 
+    return ((c1[0]-c2[0])**2 +(c1[1]-c2[1])**2 + (c1[2]-c2[2])**2)**0.5
+
+def rgb_to_string(rgb_list): 
+    return 'rgb({},{},{});'.format(rgb_list[0], rgb_list[1], rgb_list[2]) 
+
+def string_to_rgb(rgb_string): 
+    return [int(x) for x in rgb_string.strip('rgb();').split(',')] 
+
+
+print(string_to_rgb('rgb(255,255,255);'))
 
 
 
