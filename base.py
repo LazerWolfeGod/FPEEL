@@ -31,32 +31,8 @@ class League:
     name: str 
     standings: list 
 
-class DBHandler: 
-    def __init__(self, host, user, password, database): 
-        self.host = host 
-        self.user = user 
-        self.password = password 
-        self.database = database 
-    
-    def open_connection(self): 
-        connection = mysql.connector.connect( 
-            host=self.host, 
-            user=self.user, 
-            password=self.password, 
-            database=self.database 
-        ) 
-        return connection   
-    
-    # MAYBE DO THIS SHIT IDFK
-
-    def execute_query(self, connection, query, data=None): 
-        pass 
-
-    def execute_update(self, connection, query, data=None, data_to_update=None): 
-        pass 
-
-    def close_connection(self, connection): 
-        connection.close() 
+class DB_Handler: 
+    pass 
 
 class Optimiser: 
     lineup_size = 11 

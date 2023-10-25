@@ -10,7 +10,7 @@ api_urls = {
     'fantasy_login': 'https://fantasy.premierleague.com/login/',
     'static': '{}bootstrap-static/'.format(base_url), 
     'user': '{}entry/{{}}/'.format(base_url), 
-    'league': '{}leagues-classic/{{}}/'.format(base_url),  
+    'league': '{}leagues-classic/{{}}/standings'.format(base_url),  
     'me': '{}me/'.format(base_url), 
     'current-team': '{}my-team/{{}}/'.format(base_url), 
     'given-team': '{}entry/{{}}/event/{{}}/'.format(base_url) 
@@ -71,7 +71,7 @@ def convert_team(team_id):
     pass 
 
 def convert_team_short(team_idea): 
-    pass 
+    pass  
 
 def convert_position(position_id): 
     return {
@@ -81,7 +81,6 @@ def convert_position(position_id):
         4: 'Forward' 
     }[position_id]  
 
-
 def create_user_object(session, cookies): 
     data = fetch(session, api_urls['me'], cookies=cookies)['player']
     return base.User( 
@@ -89,8 +88,10 @@ def create_user_object(session, cookies):
         data['first_name'], 
         data['email'], 
         cookies 
+    ) 
 
-    )
+def create_player_object(session, player_id):
+    pass 
 
 
 
