@@ -230,7 +230,8 @@ class MainWindow(WindowParent):
         self.database_button.setGeometry(QtCore.QRect(300, 410, 400, 80))  
         self.database_button.colour = 1 
         self.database_button.setFont(QFont(self.settings.font, 14)) 
-        self.database_button.setText('Player Database')  
+        self.database_button.setText('Player Database')   
+        self.database_button.clicked.connect(lambda: self.open_window(4)) 
 
         self.settings_button = CustomButton(self) 
         self.settings_button.setGeometry(QtCore.QRect(300, 490, 400, 80)) 
@@ -395,7 +396,78 @@ class LeagueWindow(WindowParent):
             self.league_table.setItem(x['rank']-1, 4, QtWidgets.QTableWidgetItem(str(x['total']))) 
 
 class DatabaseWindow(WindowParent): 
-    pass 
+    def __init__(self, previous_window, fpl): 
+        super().__init__(previous_window, fpl) 
+        self.window_id = 4  
+        print("WHAT") 
+        self.sort_switcher = { 
+            0: lambda x: x.player_id, 
+            1: lambda x: x.name, 
+            2: lambda x: x.cost, 
+            3: lambda x: x.total_points, 
+            4: lambda x: x.position, 
+            5: lambda x: x.team, 
+            6: lambda x: x.ppg, 
+            7: lambda x: x.owned_by, 
+            8: lambda x: x.composite_score 
+        } 
+        self.raw_players = self.fpl.get_all_players()  
+        self.setup_ui() 
+        self.apply_colours(self)  
+    
+    def sort_by(self, value):
+        players = utils.merge_sort(self.raw_players, self.sort_switcher[value])  
+        self.add_players_to_table(players) 
+
+    def add_players_to_table(self, players): 
+        self.player_table.clearContents() 
+        for index, x in enumerate(players): 
+            self.player_table.setItem(index, 0, QtWidgets.QTableWidgetItem(str(x.player_id))) 
+            self.player_table.setItem(index, 1, QtWidgets.QTableWidgetItem(x.name)) 
+            self.player_table.setItem(index, 2, QtWidgets.QTableWidgetItem(str(x.cost))) 
+            self.player_table.setItem(index, 3, QtWidgets.QTableWidgetItem(str(x.total_points))) 
+            self.player_table.setItem(index, 4, QtWidgets.QTableWidgetItem(str(utils.convert_position(x.position)))) 
+            self.player_table.setItem(index, 5, QtWidgets.QTableWidgetItem(str(utils.convert_team(x.team)))) 
+            self.player_table.setItem(index, 6, QtWidgets.QTableWidgetItem(str(x.ppg))) 
+            self.player_table.setItem(index, 7, QtWidgets.QTableWidgetItem(str(x.owned_by))) 
+            self.player_table.setItem(index, 8, QtWidgets.QTableWidgetItem(str(x.composite_score))) 
+    
+    def setup_ui(self):
+        self.setFixedSize(1000, 1000) 
+        
+        self.title_label = QtWidgets.QLabel(self) 
+        self.title_label.setGeometry(QtCore.QRect(0, 0, 1000, 100)) 
+        self.title_label.colour = 1 
+        self.title_label.setFont(QFont(self.settings.font, 20)) 
+        self.title_label.setText('Player Database')  
+
+        self.sort_by_box = QComboBox(self) 
+        self.sort_by_box.setGeometry(QtCore.QRect(10, 900, 200, 50)) 
+        self.sort_by_box.colour = 1 
+        self.sort_by_box.setFont(QFont(self.settings.font, 8))  
+        self.sort_by_box.addItems(['ID', 'Name', 'Cost', 'Total Points', 'Position', 'Team', 'PPG', 'Owned by', 'Composite Score'])
+        self.sort_by_box.currentIndexChanged.connect(self.sort_by) 
+
+        self.player_table = QtWidgets.QTableWidget(self) 
+        self.player_table.setGeometry(QtCore.QRect(0, 100, 1000, 750)) 
+        self.player_table.colour = 1 
+        self.player_table.setFont(QFont(self.settings.font, 8)) 
+        self.player_table.setColumnCount(9) 
+        self.player_table.verticalHeader().hide() 
+        self.player_table.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.player_table.setHorizontalHeaderLabels([
+            'ID', 
+            'Name', 
+            'Cost',   
+            'Total Points', 
+            'Position', 
+            'Team', 
+            'PPG', 
+            'Owned by', 
+            'Composite Score'
+        ]) 
+        self.sort_by(self.sort_switcher[0]) 
+
 
 class SettingsWindow(WindowParent): 
     def __init__(self, previous_window, fpl): 

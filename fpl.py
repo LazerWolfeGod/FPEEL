@@ -7,7 +7,15 @@ class FPL:
     def __init__(self, session, user=None):  
         self.session = session 
         self.user = user 
-        self.session = requests.Session()    
+        self.session = requests.Session()   
+        self.db_connection = utils.connect_to_db()    
+    
+    def get_all_players(self): 
+        cursor = self.db_connection.cursor() 
+        cursor.execute('SELECT * FROM players') 
+        data = cursor.fetchall() 
+        cursor.close() 
+        return [base.Player(*x) for x in data] 
     
     def get_current_user_picks(self): 
         if self.user: 

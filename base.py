@@ -6,17 +6,13 @@ import pulp
 class Player: 
     player_id: int 
     name: str 
-    cost: float 
-    team: int 
+    cost: float  
+    total_points: int 
     position: int 
-    ownership_percentage: float 
-    form: float 
-    fixture_diff: float 
+    team: int 
     ppg: float 
-    xga: float 
-    total_points: int  
-    composite_score: float = None 
-    composite_score3: float = None 
+    owned_by: float 
+    composite_score: float 
 
 @dataclass 
 class User: 
