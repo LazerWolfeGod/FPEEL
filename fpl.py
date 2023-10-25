@@ -12,9 +12,8 @@ class FPL:
     def get_current_user_picks(self): 
         if self.user: 
             data = utils.fetch(self.session, utils.api_urls['current-team'].format(self.user.id), cookies=self.session.cookies)   
-            print(self.session.cookies) 
-            print(data) 
-            return data['picks']
+            ids_list = [x['element'] for x in data['picks']] 
+            return ids_list 
         return False   
     
     def get_current_user_rank(self): 

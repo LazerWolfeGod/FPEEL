@@ -182,6 +182,7 @@ class MainWindow(WindowParent):
     def __init__(self, previous_window, fpl): 
         super().__init__(previous_window, fpl)  
         self.window_id = 1 
+        utils.update_static_data(self.fpl.session) 
         self.setup_ui()  
         self.apply_colours() 
     
@@ -237,9 +238,11 @@ class LineupWindow(WindowParent):
         super().__init__(previous_window, fpl) 
         self.window_id = 2  
         self.setup_ui()  
-        self.apply_colours()  
-        for x in self.fpl.get_current_user_picks(): 
-            print(self.fpl.get_player_from_id(x['element'])) 
+        self.apply_colours()      
+        self.column_headers = ['Name', 'Team', 'Position', 'Price', 'Total Points', 'PPG']
+        picks = [utils.create_player_object(x) for x in self.fpl.get_current_user_picks()] 
+        self.starting_eleven = picks[:11] 
+        self.bench = picks[11:]  
     
     def setup_ui(self): 
         self.setFixedSize(1000, 1000) 
@@ -256,10 +259,17 @@ class LineupWindow(WindowParent):
         self.list_button.colour = 1 
         self.list_button.setFont(QFont(self.settings.font, 8)) 
         self.list_button.setText('List View')  
-        self.list_button.clicked.connect(self.toggle)   
+        self.list_button.clicked.connect(self.toggle)    
+
+        self.back_button = CustomButton(self) 
+        self.back_button.setGeometry(QtCore.QRect(10, 10, 100, 40)) 
+        self.back_button.colour = 1 
+        self.back_button.setFont(QFont(self.settings.font, 8)) 
+        self.back_button.setText('Back') 
+        self.back_button.clicked.connect(self.back_window) 
 
         self.widget = QtWidgets.QWidget(self) 
-        self.widget.setGeometry(QtCore.QRect(0, 50, 1000, 900))
+        self.widget.setGeometry(QtCore.QRect(0, 50, 650, 750))
     
     def toggle(self): 
         if self.sender() == self.formation_button or self.sender() == None:  
@@ -273,22 +283,36 @@ class LineupWindow(WindowParent):
 
     def setup_list_view(self): 
         layout = QVBoxLayout() 
-        self.starting_eleven = QtWidgets.QTableWidget(self) 
-        self.starting_eleven.colour = 1 
-        self.starting_eleven.setFont(QFont(self.settings.font, 8)) 
-        self.starting_eleven.setColumnCount(5) 
-        self.starting_eleven.setRowCount(11) 
-        self.starting_eleven.setHorizontalHeaderLabels(['Name', 'Team', 'Position', 'Price', 'Points'])  
+        self.starting_eleven_table = QtWidgets.QTableWidget(self) 
+        self.starting_eleven_table.colour = 1 
+        self.starting_eleven_table.setFont(QFont(self.settings.font, 8)) 
+        self.starting_eleven_table.setColumnCount(6) 
+        self.starting_eleven_table.setRowCount(11) 
+        self.starting_eleven_table.setHorizontalHeaderLabels(self.column_headers)   
+        for index, player in enumerate(self.starting_eleven):   
+            self.starting_eleven_table.setItem(index, 0, QtWidgets.QTableWidgetItem(player.name))  
+            self.starting_eleven_table.setItem(index, 1, QtWidgets.QTableWidgetItem(str(player.team))) 
+            self.starting_eleven_table.setItem(index, 2, QtWidgets.QTableWidgetItem(str(utils.convert_position(player.position))))
+            self.starting_eleven_table.setItem(index, 3, QtWidgets.QTableWidgetItem(str(player.cost))) 
+            self.starting_eleven_table.setItem(index, 4, QtWidgets.QTableWidgetItem(str(player.total_points))) 
+            self.starting_eleven_table.setItem(index, 5, QtWidgets.QTableWidgetItem(str(player.ppg))) 
 
-        self.bench  = QtWidgets.QTableWidget(self)  
-        self.bench.colour = 1 
-        self.bench.setFont(QFont(self.settings.font, 8)) 
-        self.bench.setColumnCount(5) 
-        self.bench.setRowCount(4) 
-        self.bench.setHorizontalHeaderLabels(['Name', 'Team', 'Position', 'Price', 'Points'])  
+        self.bench_table = QtWidgets.QTableWidget(self)  
+        self.bench_table.colour = 1 
+        self.bench_table.setFont(QFont(self.settings.font, 8)) 
+        self.bench_table.setColumnCount(6)  
+        self.bench_table.setRowCount(4) 
+        self.bench_table.setHorizontalHeaderLabels(self.column_headers)    
+        for index, player in enumerate(self.bench): 
+            self.bench_table.setItem(index, 0, QtWidgets.QTableWidgetItem(player.name)) 
+            self.bench_table.setItem(index, 1, QtWidgets.QTableWidgetItem(str(player.team)))
+            self.bench_table.setItem(index, 2, QtWidgets.QTableWidgetItem(str(utils.convert_position(player.position))))
+            self.bench_table.setItem(index, 3, QtWidgets.QTableWidgetItem(str(player.cost))) 
+            self.bench_table.setItem(index, 4, QtWidgets.QTableWidgetItem(str(player.total_points)))  
+            self.bench_table.setItem(index, 5, QtWidgets.QTableWidgetItem(str(player.ppg))) 
 
-        layout.addWidget(self.starting_eleven)
-        layout.addWidget(self.bench) 
+        layout.addWidget(self.starting_eleven_table)
+        layout.addWidget(self.bench_table) 
         self.widget.setLayout(layout) 
 
     def setup_formation_view(self):  
@@ -308,17 +332,24 @@ class LeagueWindow(WindowParent):
         self.setFixedSize(1000, 1000) 
 
         self.league_chooser = QComboBox(self)  
-        self.league_chooser.setGeometry(QtCore.QRect(0, 0, 200, 50))  
+        self.league_chooser.setGeometry(QtCore.QRect(800, 0, 200, 50))  
         self.league_chooser.colour = 1 
         for x in self.fpl.get_current_user_leagues():  
             self.league_chooser.addItem(x['name'])  
 
         self.view_league_button = CustomButton(self)   
-        self.view_league_button.setGeometry(QtCore.QRect(0, 50, 200, 50))   
+        self.view_league_button.setGeometry(QtCore.QRect(800, 50, 200, 50))   
         self.view_league_button.colour = 1  
         self.view_league_button.setFont(QFont(self.settings.font, 8))
         self.view_league_button.setText('View League')  
-        self.view_league_button.clicked.connect(self.view_league) 
+        self.view_league_button.clicked.connect(self.view_league)  
+
+        self.back_button = CustomButton(self) 
+        self.back_button.setGeometry(QtCore.QRect(0, 0, 100, 50)) 
+        self.back_button.colour = 1 
+        self.back_button.setFont(QFont(self.settings.font, 8)) 
+        self.back_button.setText('Back') 
+        self.back_button.clicked.connect(self.back_window) 
 
         self.league_table = QtWidgets.QTableWidget(self) 
         self.league_table.setGeometry(QtCore.QRect(0, 100, 1000, 900))  

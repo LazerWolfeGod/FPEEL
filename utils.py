@@ -16,6 +16,10 @@ api_urls = {
     'given-team': '{}entry/{{}}/event/{{}}/'.format(base_url) 
 }   
 
+def update_static_data(session): 
+    data = fetch(session, api_urls['static']) 
+    write_json(data, os.path.join(os.getcwd(), 'json_data', 'static.json')) 
+
 def write_json(data: json, path: str): 
     with open(path, 'w') as f: 
         json.dump(data, f, indent=4)  
@@ -90,8 +94,28 @@ def create_user_object(session, cookies):
         cookies 
     ) 
 
-def create_player_object(session, player_id):
-    pass 
+def create_player_object(player_id):  
+    data = read_json(os.path.join(os.getcwd(), 'json_data', 'static.json'))['elements'] 
+    for x in data: 
+        if x['id'] == player_id: 
+            data = x 
+            break 
+    return base.Player( 
+        data['id'], 
+        data['web_name'], 
+        data['now_cost']/10, 
+        data['team'], 
+        data['element_type'], 
+        data['selected_by_percent'], 
+        data['form'], 
+        0, 
+        data['points_per_game'], 
+        0, 
+        data['total_points'], 
+        None, 
+        None 
+    )
+
 
 
 
