@@ -3,5 +3,5 @@
     "secondary_colour": "rgb(0, 0, 0);",
     "font": "Calibri",
     "button_sound": "sounds/button.wav",
-    "button_volume": 1
+    "button_volume": 50
 }

@@ -11,7 +11,7 @@ import json
 import sys    
 import os 
 import utils  
-import base   
+import base     
 
 class WindowParent(QMainWindow): 
     def __init__(self, previous_window, fpl): 
@@ -395,18 +395,23 @@ class SettingsWindow(WindowParent):
         self.window_id = 5 
         self.settings_dict = {} 
         self.recent_press = None 
-        """
         self.section_switcher = { 
             'colour': self.open_font_settings, 
             'font': self.open_font_settings, 
             'button_sound': self.open_sound_settings
         }  
-        """ 
         self.setup_ui() 
         self.apply_colours(self) 
 
     def settings_window_refresh(self): 
-        pass  
+        self.close() 
+        self.window = self.window_switcher[self.window.type](self.window.previous_window, self.window.fpl) 
+        if self.recent_press != None: 
+            self.section_switcher[self.recent_press]() 
+        self.window.show()   
+    
+    def slider_value_changed(self, value): 
+        self.sender().parent().volume_entry.setText(str(value)) 
 
     def fill_colour_widget(self): 
         self.colour_widget.info_label = QtWidgets.QLabel(self.colour_widget) 
@@ -442,8 +447,25 @@ class SettingsWindow(WindowParent):
         self.font_widget.font_button.clicked.connect(self.open_font_window)   
     
     def fill_sound_widget(self): 
-        pass 
-    
+        self.sound_widget.info_label = QtWidgets.QLabel(self.sound_widget) 
+        self.sound_widget.info_label.setGeometry(QtCore.QRect(0, 0, 200, 40)) 
+        self.sound_widget.info_label.setFont(QFont(self.settings.font, 8)) 
+        self.sound_widget.info_label.setText('Sound Settings:')   
+
+        self.sound_widget.slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal, self.sound_widget) 
+        self.sound_widget.slider.setGeometry(QtCore.QRect(0, 50, 200, 40)) 
+        self.sound_widget.slider.colour = 1   
+        self.sound_widget.slider.setMinimum(0) 
+        self.sound_widget.slider.setMaximum(100) 
+        self.sound_widget.slider.setValue(self.settings.button_volume)  
+        self.sound_widget.slider.valueChanged.connect(self.slider_value_changed) 
+
+        self.sound_widget.volume_entry = QtWidgets.QLineEdit(self.sound_widget) 
+        self.sound_widget.volume_entry.setGeometry(QtCore.QRect(250, 50, 100, 40)) 
+        self.sound_widget.volume_entry.colour = 1 
+        self.sound_widget.volume_entry.setFont(QFont(self.settings.font, 8)) 
+        self.sound_widget.volume_entry.setText(str(self.settings.button_volume)) 
+
     def open_colour_settings(self): 
         self.stacked_layout.setCurrentWidget(self.colour_widget) 
 
@@ -451,7 +473,7 @@ class SettingsWindow(WindowParent):
         self.stacked_layout.setCurrentWidget(self.font_widget)  
 
     def open_sound_settings(self): 
-        pass 
+        self.stacked_layout.setCurrentWidget(self.sound_widget)  
 
     def open_font_window(self): 
         pass 
@@ -526,12 +548,14 @@ class SettingsWindow(WindowParent):
         self.fill_font_widget() 
 
         self.sound_widget = QWidget(self.main_widget) 
-        self.sound_widget.setFixedSize(350, 350) 
+        self.sound_widget.setFixedSize(350, 350)  
+        self.fill_sound_widget() 
 
-        self.stacked_layout = QStackedLayout(self) 
+        self.stacked_layout = QStackedLayout(self)   
+        self.stacked_layout.addWidget(QWidget())  
         self.stacked_layout.addWidget(self.colour_widget)  
-        self.stacked_layout.addWidget(self.font_widget) 
-        self.stacked_layout.setCurrentWidget(self.colour_widget)  
+        self.stacked_layout.addWidget(self.font_widget)
+        self.stacked_layout.addWidget(self.sound_widget)
 
         self.main_widget.setLayout(self.stacked_layout)   
 
