@@ -1,5 +1,5 @@
 from PyQt6 import QtCore, QtWidgets, QtGui, QtMultimedia
-from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QColorDialog, QFontDialog, QVBoxLayout, QHBoxLayout, QComboBox 
+from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QColorDialog, QFontDialog, QVBoxLayout, QHBoxLayout, QComboBox, QStackedLayout 
 from PyQt6.QtGui import QFont, QPixmap, QPainter, QColor 
 from PyQt6.QtCore import QUrl 
 from PyQt6.QtMultimedia import QSoundEffect   
@@ -51,10 +51,14 @@ class WindowParent(QMainWindow):
     def apply_colour(self, widget): 
         widget.setStyleSheet(self.colour_switcher[widget.colour]) 
     
-    def apply_colours(self): 
-        for widget in self.findChildren(QWidget): 
+    def apply_colours(self, parent): 
+        for widget in parent.findChildren(QWidget): 
             if hasattr(widget, 'colour'): 
-                self.apply_colour(widget)   
+                parent.apply_colour(widget)    
+    
+    def relayout(self, widget): 
+        QWidget().setLayout(widget.layout()) 
+        
 
 class CustomButton(QPushButton): 
     def __init__(self, parent=None): 
@@ -64,7 +68,7 @@ class CustomButton(QPushButton):
         if self.parent: 
             self.sound_effect = QSoundEffect() 
             self.sound_effect.setSource(QUrl.fromLocalFile(self.parent.settings.button_sound))   
-    
+
     def play_sound(self, volume): 
         self.sound_effect.setVolume(volume) 
         self.sound_effect.play() 
@@ -111,7 +115,7 @@ class LoginWindow(WindowParent):
         self.session = requests.Session() 
         self.window_id = 0   
         self.setup_ui() 
-        self.apply_colours() 
+        self.apply_colours(self) 
     
     def setup_ui(self): 
         self.setFixedSize(750, 750) 
@@ -184,7 +188,7 @@ class MainWindow(WindowParent):
         self.window_id = 1 
         utils.update_static_data(self.fpl.session) 
         self.setup_ui()  
-        self.apply_colours() 
+        self.apply_colours(self) 
     
     def setup_ui(self): 
         self.setFixedSize(1000, 1000)  
@@ -236,13 +240,13 @@ class MainWindow(WindowParent):
 class LineupWindow(WindowParent): 
     def __init__(self, previous_window, fpl): 
         super().__init__(previous_window, fpl) 
-        self.window_id = 2  
-        self.setup_ui()  
-        self.apply_colours()      
-        self.column_headers = ['Name', 'Team', 'Position', 'Price', 'Total Points', 'PPG']
+        self.window_id = 2   
+        self.column_headers = ['Name', 'Team', 'Position', 'Price', 'Total Points', 'PPG']  
         picks = [utils.create_player_object(x) for x in self.fpl.get_current_user_picks()] 
         self.starting_eleven = picks[:11] 
         self.bench = picks[11:]  
+        self.setup_ui()  
+        self.apply_colours(self)       
     
     def setup_ui(self): 
         self.setFixedSize(1000, 1000) 
@@ -266,22 +270,34 @@ class LineupWindow(WindowParent):
         self.back_button.colour = 1 
         self.back_button.setFont(QFont(self.settings.font, 8)) 
         self.back_button.setText('Back') 
-        self.back_button.clicked.connect(self.back_window) 
+        self.back_button.clicked.connect(self.back_window)   
 
-        self.widget = QtWidgets.QWidget(self) 
-        self.widget.setGeometry(QtCore.QRect(0, 50, 650, 750))
+        self.main_widget = QtWidgets.QWidget(self) 
+        self.main_widget.setGeometry(QtCore.QRect(0, 50, 1000, 750)) 
+
+        self.formation_widget = QtWidgets.QWidget(self) 
+        self.formation_widget.setLayout(self.setup_formation_view()) 
+
+        self.list_widget = QtWidgets.QWidget(self) 
+        self.list_widget.setLayout(self.setup_list_view()) 
+
+        self.stacked_layout = QStackedLayout(self)  
+        self.stacked_layout.addWidget(self.formation_widget) 
+        self.stacked_layout.addWidget(self.list_widget)  
+
+        self.main_widget.setLayout(self.stacked_layout) 
     
     def toggle(self): 
         if self.sender() == self.formation_button or self.sender() == None:  
             self.formation_button.setStyleSheet('background-color: rgb(0, 255, 0);')  
             self.apply_colour(self.list_button) 
-            self.setup_formation_view() 
+            self.stacked_layout.setCurrentWidget(self.formation_widget) 
         else: 
             self.list_button.setStyleSheet('background-color: rgb(0, 255, 0);')  
             self.apply_colour(self.formation_button) 
-            self.setup_list_view() 
+            self.stacked_layout.setCurrentWidget(self.list_widget)
 
-    def setup_list_view(self): 
+    def setup_list_view(self):  
         layout = QVBoxLayout() 
         self.starting_eleven_table = QtWidgets.QTableWidget(self) 
         self.starting_eleven_table.colour = 1 
@@ -312,13 +328,12 @@ class LineupWindow(WindowParent):
             self.bench_table.setItem(index, 5, QtWidgets.QTableWidgetItem(str(player.ppg))) 
 
         layout.addWidget(self.starting_eleven_table)
-        layout.addWidget(self.bench_table) 
-        self.widget.setLayout(layout) 
+        layout.addWidget(self.bench_table)  
+        return layout 
 
-    def setup_formation_view(self):  
+    def setup_formation_view(self):   
         layout = QVBoxLayout() 
-        self.widget.setLayout(layout) 
-
+        return layout 
 
 class LeagueWindow(WindowParent): 
     def __init__(self, previous_window, fpl): 
@@ -326,7 +341,7 @@ class LeagueWindow(WindowParent):
         self.window_id = 3  
         self.leagues = self.fpl.get_current_user_leagues() 
         self.setup_ui() 
-        self.apply_colours() 
+        self.apply_colours(self) 
     
     def setup_ui(self): 
         self.setFixedSize(1000, 1000) 
@@ -380,26 +395,64 @@ class SettingsWindow(WindowParent):
         self.window_id = 5 
         self.settings_dict = {} 
         self.recent_press = None 
+        """
         self.section_switcher = { 
-            'colour': self.open_colour_settings, 
+            'colour': self.open_font_settings, 
             'font': self.open_font_settings, 
             'button_sound': self.open_sound_settings
         }  
+        """ 
         self.setup_ui() 
-        self.apply_colours() 
+        self.apply_colours(self) 
 
     def settings_window_refresh(self): 
-        pass 
+        pass  
 
-    def open_colour_settings(self): 
+    def fill_colour_widget(self): 
+        self.colour_widget.info_label = QtWidgets.QLabel(self.colour_widget) 
+        self.colour_widget.info_label.setGeometry(QtCore.QRect(0, 0, 200, 40))  
+        self.colour_widget.info_label.setFont(QFont(self.settings.font, 8)) 
+        self.colour_widget.info_label.setText('Colour Settings:') 
+        
+        self.colour_widget.primary_button = QPushButton(self.colour_widget) 
+        self.colour_widget.primary_button.setGeometry(QtCore.QRect(0, 50, 100, 40)) 
+        self.colour_widget.primary_button.colour = 1 
+        self.colour_widget.primary_button.setFont(QFont(self.settings.font, 8)) 
+        self.colour_widget.primary_button.setText('Primary Colour') 
+        self.colour_widget.primary_button.clicked.connect(self.open_colour_window)  
+        
+        self.colour_widget.secondary_button = QPushButton(self.colour_widget) 
+        self.colour_widget.secondary_button.setGeometry(QtCore.QRect(125, 50, 100, 40)) 
+        self.colour_widget.secondary_button.colour = 1 
+        self.colour_widget.secondary_button.setFont(QFont(self.settings.font, 8)) 
+        self.colour_widget.secondary_button.setText('Secondary Colour') 
+        self.colour_widget.secondary_button.clicked.connect(self.open_colour_window) 
+    
+    def fill_font_widget(self): 
+        self.font_widget.info_label = QtWidgets.QLabel(self.font_widget) 
+        self.font_widget.info_label.setGeometry(QtCore.QRect(0, 0, 200, 40)) 
+        self.font_widget.info_label.setFont(QFont(self.settings.font, 8)) 
+        self.font_widget.info_label.setText('Font Settings:')  
+
+        self.font_widget.font_button = QPushButton(self.font_widget) 
+        self.font_widget.font_button.setGeometry(QtCore.QRect(0, 50, 100, 40)) 
+        self.font_widget.font_button.colour = 1 
+        self.font_widget.font_button.setFont(QFont(self.settings.font, 8)) 
+        self.font_widget.font_button.setText('Font') 
+        self.font_widget.font_button.clicked.connect(self.open_font_window)   
+    
+    def fill_sound_widget(self): 
         pass 
+    
+    def open_colour_settings(self): 
+        self.stacked_layout.setCurrentWidget(self.colour_widget) 
 
     def open_font_settings(self): 
-        pass 
+        self.stacked_layout.setCurrentWidget(self.font_widget)  
 
     def open_sound_settings(self): 
-        pass  
-    
+        pass 
+
     def open_font_window(self): 
         pass 
 
@@ -410,7 +463,7 @@ class SettingsWindow(WindowParent):
         pass 
 
     def apply_settings(self): 
-        pass   
+        pass    
     
     def setup_ui(self):  
         self.setFixedSize(600, 600) 
@@ -438,28 +491,49 @@ class SettingsWindow(WindowParent):
         self.colour_button.setGeometry(QtCore.QRect(0, 150, 150, 40)) 
         self.colour_button.colour = 1 
         self.colour_button.setFont(QFont(self.settings.font, 8)) 
-        self.colour_button.setText('Colour') 
-        self.colour_button.clicked.connect(self.open_colour_settings)  
+        self.colour_button.setText('Colour')   
+        self.colour_button.clicked.connect(self.open_colour_settings) 
 
         self.font_button = CustomButton(self) 
         self.font_button.setGeometry(QtCore.QRect(0, 190, 150, 40)) 
         self.font_button.colour = 1 
         self.font_button.setFont(QFont(self.settings.font, 8))  
         self.font_button.setText('Font')  
-        self.font_button.clicked.connect(self.open_font_settings)  
+        self.font_button.clicked.connect(self.open_font_settings)    
 
         self.sound_button = CustomButton(self) 
         self.sound_button.setGeometry(QtCore.QRect(0, 230, 150, 40)) 
         self.sound_button.colour = 1 
         self.sound_button.setFont(QFont(self.settings.font, 8)) 
         self.sound_button.setText('Button Sound')  
-        self.sound_button.clicked.connect(self.open_sound_settings)  
+        self.sound_button.clicked.connect(self.open_sound_settings)   
 
         self.logout_button = CustomButton(self) 
         self.logout_button.setGeometry(QtCore.QRect(0, 270, 150, 40)) 
         self.logout_button.colour = 1 
         self.logout_button.setFont(QFont(self.settings.font, 8)) 
         self.logout_button.setText('Log Out')  
+
+        self.main_widget = QWidget(self) 
+        self.main_widget.setGeometry(QtCore.QRect(200, 150, 350, 350))    
+
+        self.colour_widget = QWidget(self.main_widget) 
+        self.colour_widget.setFixedSize(350, 350) 
+        self.fill_colour_widget() 
+
+        self.font_widget = QWidget(self.main_widget) 
+        self.font_widget.setFixedSize(350, 350)  
+        self.fill_font_widget() 
+
+        self.sound_widget = QWidget(self.main_widget) 
+        self.sound_widget.setFixedSize(350, 350) 
+
+        self.stacked_layout = QStackedLayout(self) 
+        self.stacked_layout.addWidget(self.colour_widget)  
+        self.stacked_layout.addWidget(self.font_widget) 
+        self.stacked_layout.setCurrentWidget(self.colour_widget)  
+
+        self.main_widget.setLayout(self.stacked_layout)   
 
 
 class ExitWindow(WindowParent): 
