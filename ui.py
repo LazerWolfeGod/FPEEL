@@ -274,7 +274,7 @@ class LineupWindow(WindowParent):
         budget = sum([player.sell_cost for player in self.starting_eleven]) + sum([player.sell_cost for player in self.bench]) + self.user_balance   
         bench_importance = 0.1
         chip_type = 'free_hit'  
-        return base.ChipOptimiser.generate_team(players, budget, bench_importance, chip_type)
+        return base.ChipOptimiser.generate_team(players, budget, bench_importance, chip_type) 
     
     def generate_wildcard(self, players): 
         budget = sum([player.sell_cost for player in self.starting_eleven]) + sum([player.sell_cost for player in self.bench]) + self.user_balance   
