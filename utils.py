@@ -2,7 +2,8 @@ import base
 import time  
 import json   
 import os  
-import mysql.connector 
+import mysql.connector  
+import selenium 
 import requests 
 
 base_url = 'https://fantasy.premierleague.com/api/' 
@@ -15,11 +16,11 @@ api_urls = {
     'me': '{}me/'.format(base_url), 
     'current-team': '{}my-team/{{}}/'.format(base_url), 
     'given-team': '{}entry/{{}}/event/{{}}/'.format(base_url) 
-}   
+}    
 
 def update_static_data(session):  
     data = fetch(session, api_urls['static']) 
-    write_json(data, os.path.join(os.getcwd(), 'json_data', 'static.json'))
+    write_json(data, os.path.join(os.getcwd(), 'json_data', 'static.json')) 
 
 def update_player_data(db_connection):  
     cursor = db_connection.cursor() 
@@ -34,7 +35,6 @@ def update_player_data(db_connection):
     db_connection.commit() 
 
 def write_json(data: json, path: str):  
-    print(path, "PATHHH") 
     with open(path, 'w') as f: 
         json.dump(data, f, indent=4)  
 
@@ -188,4 +188,4 @@ def merge_sort(array, key=lambda x: x):
             array[k] = right[j] 
             j += 1 
             k += 1  
-    return array
+    return array 

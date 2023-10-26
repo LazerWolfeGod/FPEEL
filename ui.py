@@ -56,8 +56,8 @@ class WindowParent(QMainWindow):
         try: 
             widget.setStyleSheet(self.colour_switcher[widget.colour]) 
         except: 
-            widget.setStyleSheet(self.colour_switcher[widget.parent().colour])
-    
+            widget.setStyleSheet(self.colour_switcher[widget.parent().colour]) 
+
     def apply_colours(self, parent): 
         for widget in parent.findChildren(QWidget): 
             if hasattr(widget, 'colour'): 
@@ -75,10 +75,10 @@ class CustomButton(QPushButton):
         if self.parent: 
             self.sound_effect = QSoundEffect() 
             self.sound_effect.setSource(QUrl.fromLocalFile(self.parent.settings.button_sound))   
-
+    
     def play_sound(self, volume): 
         self.sound_effect.setVolume(volume) 
-        self.sound_effect.play()
+        self.sound_effect.play() 
 
     def handle_clicked(self): 
         if self.parent: 
@@ -121,7 +121,7 @@ class Settings:
 class ColourScheme: 
     primary_colour: str = None 
     secondary_colour: str = None 
-    error_colour = 'rgb(255, 0, 0);' 
+    error_colour = 'rgb(255, 0, 0);'   
 
 class LoginWindow(WindowParent): 
     def __init__(self, previous_window=None, fpl=None): 
@@ -154,11 +154,11 @@ class LoginWindow(WindowParent):
         self.password_edit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)  
         self.password_edit.setText('James141005!') 
 
-        self.Email_label = QtWidgets.QLabel(self) 
-        self.Email_label.setGeometry(QtCore.QRect(75, 105, 300, 30)) 
-        self.Email_label.colour = 0  
-        self.Email_label.setText('Email:') 
-        self.Email_label.setFont(QFont(self.settings.font, 12))  
+        self.email_label = QtWidgets.QLabel(self) 
+        self.email_label.setGeometry(QtCore.QRect(75, 105, 300, 30)) 
+        self.email_label.colour = 0  
+        self.email_label.setText('Email:') 
+        self.email_label.setFont(QFont(self.settings.font, 12))   
 
         self.password_label = QtWidgets.QLabel(self) 
         self.password_label.setGeometry(QtCore.QRect(75, 180, 300, 30)) 
@@ -283,7 +283,7 @@ class LineupWindow(WindowParent):
         return base.ChipOptimiser.generate_team(players, budget, bench_importance, chip_type)   
     
     def seperate_lineup(self, arr): 
-        return arr[:11], arr[11:] 
+        return arr[:11], arr[11:]   
     
     def setup_ui(self): 
         self.setFixedSize(1000, 1000) 
@@ -472,7 +472,7 @@ class DatabaseWindow(WindowParent):
     
     def sort_by(self, players, value): 
         players = utils.merge_sort(players, key=self.sort_switcher[value]) 
-        return players 
+        return players  
 
     def add_players_to_table(self, value=0): 
         self.player_table.clearContents() 
@@ -499,13 +499,21 @@ class DatabaseWindow(WindowParent):
         self.title_label.setText('Player Database')  
 
         self.sort_by_box = QComboBox(self) 
-        self.sort_by_box.setGeometry(QtCore.QRect(10, 900, 200, 50)) 
+        self.sort_by_box.setGeometry(QtCore.QRect(10, 150, 200, 50)) 
         self.sort_by_box.colour = 1 
         self.sort_by_box.setFont(QFont(self.settings.font, 8))  
         self.sort_by_box.addItems(['ID', 'Name', 'Cost', 'Total Points', 'Position', 'Team', 'PPG', 'Owned by', 'Composite Score'])
-        self.sort_by_box.currentIndexChanged.connect(self.add_players_to_table) 
+        self.sort_by_box.currentIndexChanged.connect(self.add_players_to_table)  
+
+        self.back_button = CustomButton(self) 
+        self.back_button.setGeometry(QtCore.QRect(230, 150, 200, 50)) 
+        self.back_button.colour = 1 
+        self.back_button.setFont(QFont(self.settings.font, 8)) 
+        self.back_button.setText('Back') 
+        self.back_button.clicked.connect(self.back_window) 
+
         self.player_table = QtWidgets.QTableWidget(self) 
-        self.player_table.setGeometry(QtCore.QRect(0, 100, 1000, 750)) 
+        self.player_table.setGeometry(QtCore.QRect(0, 200, 1000, 750)) 
         self.player_table.colour = 1 
         self.player_table.setFont(QFont(self.settings.font, 8)) 
         self.player_table.setColumnCount(9)         
