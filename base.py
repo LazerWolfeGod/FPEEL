@@ -13,6 +13,7 @@ class Player:
     ppg: float 
     owned_by: float 
     composite_score: float 
+    sell_cost: float = None 
 
 @dataclass 
 class User: 

@@ -19,9 +19,9 @@ class FPL:
     
     def get_current_user_picks(self): 
         if self.user: 
-            data = utils.fetch(self.session, utils.api_urls['current-team'].format(self.user.id), cookies=self.session.cookies)   
-            ids_list = [x['element'] for x in data['picks']] 
-            return ids_list 
+            data = utils.fetch(self.session, utils.api_urls['current-team'].format(self.user.id), cookies=self.session.cookies)     
+            ids_list = [x for x in data['picks']] 
+            return ids_list
         return False   
     
     def get_current_user_rank(self): 
@@ -29,7 +29,10 @@ class FPL:
 
     def get_current_user_leagues(self): 
         data = utils.fetch(self.session, utils.api_urls['user'].format(self.user.id))['leagues']['classic']  
-        return [x for x in data] 
+        return [x for x in data]  
+
+    def get_current_user_balance(self): 
+        return utils.fetch(self.session, utils.api_urls['user'].format(self.user.id))['last_deadline_bank']/10 
 
     def get_current_gameweek(self): 
         static = utils.read_json(os.path.join(os.getcwd(), 'json_data', 'static.json')) 

@@ -1,6 +1,6 @@
 {
-    "primary_colour": "None",
-    "secondary_colour": "None",
+    "primary_colour": "rgb(0, 0, 0);",
+    "secondary_colour": "rgb(255, 255, 255);",
     "font": "Calibri",
     "button_sound": "sounds/button.wav",
     "button_volume": 50

@@ -51,8 +51,7 @@ class WindowParent(QMainWindow):
     def apply_colour(self, widget):  
         if widget.children(): 
             for child in widget.children():  
-                if not isinstance(child, QtCore.QObject): 
-                    print(child, "CHILD") 
+                if not isinstance(child, QtCore.QObject):   
                     self.apply_colour(child)  
         try: 
             widget.setStyleSheet(self.colour_switcher[widget.colour]) 
@@ -258,11 +257,33 @@ class LineupWindow(WindowParent):
         super().__init__(previous_window, fpl) 
         self.window_id = 2   
         self.column_headers = ['Name', 'Team', 'Position', 'Price', 'Total Points', 'PPG']  
-        picks = [utils.create_player_object(x) for x in self.fpl.get_current_user_picks()] 
+        picks_json = self.fpl.get_current_user_picks() 
+        picks = [utils.create_player_object(x['element']) for x in picks_json]   
+        for index, x in enumerate(picks): 
+            x.sell_cost = picks_json[index]['selling_price']/10 
         self.starting_eleven = picks[:11] 
         self.bench = picks[11:]  
+        self.user_balance = self.fpl.get_current_user_balance() 
         self.setup_ui()  
-        self.apply_colours(self)       
+        self.apply_colours(self)      
+        players = self.fpl.get_all_players()     
+        self.free_hit = self.generate_free_hit(players)  
+        self.free_hit_starters, self.free_hit_bench = self.seperate_lineup(self.free_hit) 
+    
+    def generate_free_hit(self, players):  
+        budget = sum([player.sell_cost for player in self.starting_eleven]) + sum([player.sell_cost for player in self.bench]) + self.user_balance   
+        bench_importance = 0.1
+        chip_type = 'free_hit'  
+        return base.ChipOptimiser.generate_team(players, budget, bench_importance, chip_type)
+    
+    def generate_wildcard(self, players): 
+        budget = sum([player.sell_cost for player in self.starting_eleven]) + sum([player.sell_cost for player in self.bench]) + self.user_balance   
+        bench_importance = 0.3
+        chip_type = 'wildcard' 
+        return base.ChipOptimiser.generate_team(players, budget, bench_importance, chip_type)   
+    
+    def seperate_lineup(self, arr): 
+        return arr[:11], arr[11:] 
     
     def setup_ui(self): 
         self.setFixedSize(1000, 1000) 
@@ -293,12 +314,16 @@ class LineupWindow(WindowParent):
         self.my_team_button.colour = 1 
         self.my_team_button.setFont(QFont(self.settings.font, 8)) 
         self.my_team_button.setText('My Team') 
+        self.my_team_button.clicked.connect(lambda: self.change_starting_eleven_list(self.starting_eleven)) 
+        self.my_team_button.clicked.connect(lambda: self.change_bench_list(self.bench)) 
 
         self.free_hit_button = CustomButton(self) 
         self.free_hit_button.setGeometry(QtCore.QRect(150, 800, 100, 40)) 
         self.free_hit_button.colour = 1 
         self.free_hit_button.setFont(QFont(self.settings.font, 8)) 
         self.free_hit_button.setText('Free Hit')  
+        self.free_hit_button.clicked.connect(lambda: self.change_starting_eleven_list(self.free_hit_starters)) 
+        self.free_hit_button.clicked.connect(lambda: self.change_bench_list(self.free_hit_bench)) 
 
         self.wildcard_button = CustomButton(self) 
         self.wildcard_button.setGeometry(QtCore.QRect(290, 800, 100, 40)) 
@@ -329,7 +354,7 @@ class LineupWindow(WindowParent):
         else: 
             self.list_button.setStyleSheet('background-color: rgb(0, 255, 0);')  
             self.apply_colour(self.formation_button) 
-            self.stacked_layout.setCurrentWidget(self.list_widget)
+            self.stacked_layout.setCurrentWidget(self.list_widget)  
 
     def setup_list_view(self):  
         layout = QVBoxLayout() 
@@ -339,31 +364,37 @@ class LineupWindow(WindowParent):
         self.starting_eleven_table.setColumnCount(6) 
         self.starting_eleven_table.setRowCount(11) 
         self.starting_eleven_table.setHorizontalHeaderLabels(self.column_headers)   
-        for index, player in enumerate(self.starting_eleven):   
-            self.starting_eleven_table.setItem(index, 0, QtWidgets.QTableWidgetItem(player.name))  
-            self.starting_eleven_table.setItem(index, 1, QtWidgets.QTableWidgetItem(str(player.team))) 
-            self.starting_eleven_table.setItem(index, 2, QtWidgets.QTableWidgetItem(str(utils.convert_position(player.position))))
-            self.starting_eleven_table.setItem(index, 3, QtWidgets.QTableWidgetItem(str(player.cost))) 
-            self.starting_eleven_table.setItem(index, 4, QtWidgets.QTableWidgetItem(str(player.total_points))) 
-            self.starting_eleven_table.setItem(index, 5, QtWidgets.QTableWidgetItem(str(player.ppg))) 
 
         self.bench_table = QtWidgets.QTableWidget(self)  
         self.bench_table.colour = 1 
         self.bench_table.setFont(QFont(self.settings.font, 8)) 
         self.bench_table.setColumnCount(6)  
         self.bench_table.setRowCount(4) 
-        self.bench_table.setHorizontalHeaderLabels(self.column_headers)    
-        for index, player in enumerate(self.bench): 
-            self.bench_table.setItem(index, 0, QtWidgets.QTableWidgetItem(player.name)) 
-            self.bench_table.setItem(index, 1, QtWidgets.QTableWidgetItem(str(player.team)))
-            self.bench_table.setItem(index, 2, QtWidgets.QTableWidgetItem(str(utils.convert_position(player.position))))
-            self.bench_table.setItem(index, 3, QtWidgets.QTableWidgetItem(str(player.cost))) 
-            self.bench_table.setItem(index, 4, QtWidgets.QTableWidgetItem(str(player.total_points)))  
-            self.bench_table.setItem(index, 5, QtWidgets.QTableWidgetItem(str(player.ppg))) 
+        self.bench_table.setHorizontalHeaderLabels(self.column_headers)   
 
         layout.addWidget(self.starting_eleven_table)
         layout.addWidget(self.bench_table)  
-        return layout 
+        return layout  
+
+    def change_starting_eleven_list(self, players): 
+        self.starting_eleven_table.clearContents() 
+        for index, player in enumerate(players): 
+            self.starting_eleven_table.setItem(index, 0, QtWidgets.QTableWidgetItem(player.name)) 
+            self.starting_eleven_table.setItem(index, 1, QtWidgets.QTableWidgetItem(str(utils.convert_team(player.team)))) 
+            self.starting_eleven_table.setItem(index, 2, QtWidgets.QTableWidgetItem(str(utils.convert_position(player.position)))) 
+            self.starting_eleven_table.setItem(index, 3, QtWidgets.QTableWidgetItem(str(player.cost))) 
+            self.starting_eleven_table.setItem(index, 4, QtWidgets.QTableWidgetItem(str(player.total_points))) 
+            self.starting_eleven_table.setItem(index, 5, QtWidgets.QTableWidgetItem(str(player.ppg)))  
+    
+    def change_bench_list(self, players): 
+        self.bench_table.clearContents() 
+        for index, player in enumerate(players): 
+            self.bench_table.setItem(index, 0, QtWidgets.QTableWidgetItem(player.name)) 
+            self.bench_table.setItem(index, 1, QtWidgets.QTableWidgetItem(str(utils.convert_team(player.team)))) 
+            self.bench_table.setItem(index, 2, QtWidgets.QTableWidgetItem(str(utils.convert_position(player.position)))) 
+            self.bench_table.setItem(index, 3, QtWidgets.QTableWidgetItem(str(player.cost))) 
+            self.bench_table.setItem(index, 4, QtWidgets.QTableWidgetItem(str(player.total_points))) 
+            self.bench_table.setItem(index, 5, QtWidgets.QTableWidgetItem(str(player.ppg))) 
 
     def setup_formation_view(self):   
         layout = QVBoxLayout() 

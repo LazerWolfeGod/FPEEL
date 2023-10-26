@@ -134,7 +134,7 @@ def create_player_object(player_id):
     for x in data: 
         if x['id'] == player_id: 
             data = x 
-            break 
+            break  
     return base.Player( 
         data['id'], 
         data['web_name'], 
@@ -144,7 +144,7 @@ def create_player_object(player_id):
         data['team'], 
         data['points_per_game'], 
         data['selected_by_percent'], 
-        0
+        0, 
     )
 
 def connect_to_db(): 
