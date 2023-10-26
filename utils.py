@@ -17,9 +17,21 @@ api_urls = {
     'given-team': '{}entry/{{}}/event/{{}}/'.format(base_url) 
 }   
 
-def update_static_data(session): 
+def update_static_data(session):  
     data = fetch(session, api_urls['static']) 
-    write_json(data, os.path.join(os.getcwd(), 'json_data', 'static.json')) 
+    write_json(data, os.path.join(os.getcwd(), 'json_data', 'static.json'))
+
+def update_player_data(db_connection):  
+    cursor = db_connection.cursor() 
+    with open(os.path.join(os.getcwd(), 'json_data', 'static.json'), 'r') as f: 
+        data = json.load(f) 
+    for x in data['elements']:  
+        print(x['id']) 
+        data_to_update = (x['web_name'], x['now_cost']/10, x['total_points'], x['element_type'], x['team'], x['points_per_game'], x['selected_by_percent'], x['id']) 
+        sql = f'UPDATE players SET name=%s, cost=%s, total_points=%s, position=%s, team_id=%s, ppg=%s, owned_by=%s WHERE id=%s' 
+        cursor.execute(sql, data_to_update)  
+    cursor.close() 
+    db_connection.commit() 
 
 def write_json(data: json, path: str):  
     print(path, "PATHHH") 
@@ -127,17 +139,13 @@ def create_player_object(player_id):
         data['id'], 
         data['web_name'], 
         data['now_cost']/10, 
-        data['team'], 
-        data['element_type'], 
-        data['selected_by_percent'], 
-        data['form'], 
-        0, 
-        data['points_per_game'], 
-        0, 
         data['total_points'], 
-        None, 
-        None 
-    ) 
+        data['element_type'], 
+        data['team'], 
+        data['points_per_game'], 
+        data['selected_by_percent'], 
+        0
+    )
 
 def connect_to_db(): 
     return mysql.connector.connect( 
@@ -179,10 +187,5 @@ def merge_sort(array, key=lambda x: x):
         while j < len(right): 
             array[k] = right[j] 
             j += 1 
-            k += 1 
-    return reversed(array) 
-
-
-
-
-
+            k += 1  
+    return array

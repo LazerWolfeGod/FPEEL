@@ -48,8 +48,16 @@ class WindowParent(QMainWindow):
         if self.previous_window: 
             self.open_window(self.previous_window) 
 
-    def apply_colour(self, widget): 
-        widget.setStyleSheet(self.colour_switcher[widget.colour]) 
+    def apply_colour(self, widget):  
+        if widget.children(): 
+            for child in widget.children():  
+                if not isinstance(child, QtCore.QObject): 
+                    print(child, "CHILD") 
+                    self.apply_colour(child)  
+        try: 
+            widget.setStyleSheet(self.colour_switcher[widget.colour]) 
+        except: 
+            widget.setStyleSheet(self.colour_switcher[widget.parent().colour])
     
     def apply_colours(self, parent): 
         for widget in parent.findChildren(QWidget): 
@@ -90,8 +98,7 @@ class Settings:
                 'button_sound': None, 
                 'button_volume': None 
             }  
-
-            utils.write_json(settings, self.settings_path) 
+            utils.write_json(settings, self.settings_path)  
         self.colour_scheme = ColourScheme(settings['primary_colour'], settings['secondary_colour']) 
         self.font = settings['font'] 
         self.button_sound = settings['button_sound'] 
@@ -195,7 +202,7 @@ class MainWindow(WindowParent):
         super().__init__(previous_window, fpl)  
         self.window_id = 1 
         utils.update_static_data(self.fpl.session) 
-        self.setup_ui()  
+        self.setup_ui()   
         self.apply_colours(self) 
     
     def setup_ui(self): 
@@ -280,6 +287,24 @@ class LineupWindow(WindowParent):
         self.back_button.setFont(QFont(self.settings.font, 8)) 
         self.back_button.setText('Back') 
         self.back_button.clicked.connect(self.back_window)   
+
+        self.my_team_button = CustomButton(self) 
+        self.my_team_button.setGeometry(QtCore.QRect(10, 800, 100, 40)) 
+        self.my_team_button.colour = 1 
+        self.my_team_button.setFont(QFont(self.settings.font, 8)) 
+        self.my_team_button.setText('My Team') 
+
+        self.free_hit_button = CustomButton(self) 
+        self.free_hit_button.setGeometry(QtCore.QRect(150, 800, 100, 40)) 
+        self.free_hit_button.colour = 1 
+        self.free_hit_button.setFont(QFont(self.settings.font, 8)) 
+        self.free_hit_button.setText('Free Hit')  
+
+        self.wildcard_button = CustomButton(self) 
+        self.wildcard_button.setGeometry(QtCore.QRect(290, 800, 100, 40)) 
+        self.wildcard_button.colour = 1 
+        self.wildcard_button.setFont(QFont(self.settings.font, 8)) 
+        self.wildcard_button.setText('Wildcard') 
 
         self.main_widget = QtWidgets.QWidget(self) 
         self.main_widget.setGeometry(QtCore.QRect(0, 50, 1000, 750)) 
@@ -399,29 +424,30 @@ class DatabaseWindow(WindowParent):
     def __init__(self, previous_window, fpl): 
         super().__init__(previous_window, fpl) 
         self.window_id = 4  
-        print("WHAT") 
         self.sort_switcher = { 
             0: lambda x: x.player_id, 
             1: lambda x: x.name, 
-            2: lambda x: x.cost, 
-            3: lambda x: x.total_points, 
+            2: lambda x: -x.cost, 
+            3: lambda x: -x.total_points, 
             4: lambda x: x.position, 
             5: lambda x: x.team, 
-            6: lambda x: x.ppg, 
-            7: lambda x: x.owned_by, 
-            8: lambda x: x.composite_score 
+            6: lambda x: -x.ppg, 
+            7: lambda x: -x.owned_by, 
+            8: lambda x: -x.composite_score 
         } 
         self.raw_players = self.fpl.get_all_players()  
         self.setup_ui() 
-        self.apply_colours(self)  
+        self.apply_colours(self)        
     
-    def sort_by(self, value):
-        players = utils.merge_sort(self.raw_players, self.sort_switcher[value])  
-        self.add_players_to_table(players) 
+    def sort_by(self, players, value): 
+        players = utils.merge_sort(players, key=self.sort_switcher[value]) 
+        return players 
 
-    def add_players_to_table(self, players): 
+    def add_players_to_table(self, value=0): 
         self.player_table.clearContents() 
-        for index, x in enumerate(players): 
+        players = self.sort_by(self.raw_players, value) 
+        self.player_table.setRowCount(len(players))   
+        for index, x in enumerate(players):   
             self.player_table.setItem(index, 0, QtWidgets.QTableWidgetItem(str(x.player_id))) 
             self.player_table.setItem(index, 1, QtWidgets.QTableWidgetItem(x.name)) 
             self.player_table.setItem(index, 2, QtWidgets.QTableWidgetItem(str(x.cost))) 
@@ -430,7 +456,7 @@ class DatabaseWindow(WindowParent):
             self.player_table.setItem(index, 5, QtWidgets.QTableWidgetItem(str(utils.convert_team(x.team)))) 
             self.player_table.setItem(index, 6, QtWidgets.QTableWidgetItem(str(x.ppg))) 
             self.player_table.setItem(index, 7, QtWidgets.QTableWidgetItem(str(x.owned_by))) 
-            self.player_table.setItem(index, 8, QtWidgets.QTableWidgetItem(str(x.composite_score))) 
+            self.player_table.setItem(index, 8, QtWidgets.QTableWidgetItem(str(round(x.composite_score)))) 
     
     def setup_ui(self):
         self.setFixedSize(1000, 1000) 
@@ -446,13 +472,12 @@ class DatabaseWindow(WindowParent):
         self.sort_by_box.colour = 1 
         self.sort_by_box.setFont(QFont(self.settings.font, 8))  
         self.sort_by_box.addItems(['ID', 'Name', 'Cost', 'Total Points', 'Position', 'Team', 'PPG', 'Owned by', 'Composite Score'])
-        self.sort_by_box.currentIndexChanged.connect(self.sort_by) 
-
+        self.sort_by_box.currentIndexChanged.connect(self.add_players_to_table) 
         self.player_table = QtWidgets.QTableWidget(self) 
         self.player_table.setGeometry(QtCore.QRect(0, 100, 1000, 750)) 
         self.player_table.colour = 1 
         self.player_table.setFont(QFont(self.settings.font, 8)) 
-        self.player_table.setColumnCount(9) 
+        self.player_table.setColumnCount(9)         
         self.player_table.verticalHeader().hide() 
         self.player_table.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
         self.player_table.setHorizontalHeaderLabels([
@@ -465,8 +490,8 @@ class DatabaseWindow(WindowParent):
             'PPG', 
             'Owned by', 
             'Composite Score'
-        ]) 
-        self.sort_by(self.sort_switcher[0]) 
+        ])  
+        self.add_players_to_table() 
 
 
 class SettingsWindow(WindowParent): 
