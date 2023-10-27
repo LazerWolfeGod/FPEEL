@@ -11,7 +11,7 @@ import json
 import sys    
 import os 
 import utils  
-import base     
+import base   
 
 class WindowParent(QMainWindow): 
     def __init__(self, previous_window, fpl): 
@@ -36,7 +36,7 @@ class WindowParent(QMainWindow):
     
     def refresh(self): 
         self.close() 
-        self.new_window = self.window_switcher[self.window_id](fpl=self.fpl, previous_window=self.previous_window)  
+        self.new_window = self.window_switcher[self.window_id](fpl=self.fpl, previous_window=self.previous_window)   
 
     def open_window(self, window): 
         if window != 6: 
@@ -46,7 +46,7 @@ class WindowParent(QMainWindow):
     
     def back_window(self): 
         if self.previous_window: 
-            self.open_window(self.previous_window) 
+            self.open_window(self.previous_window)  
 
     def apply_colour(self, widget):  
         if widget.children(): 

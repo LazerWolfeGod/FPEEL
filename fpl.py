@@ -52,7 +52,13 @@ class FPL:
     
     # returns the standings in json format of a league when inputted with the league id 
     def get_league_standings(self, league_id): 
-        return utils.fetch(self.session, utils.api_urls['league'].format(league_id))['standings']['results'] 
+        return utils.fetch(self.session, utils.api_urls['league'].format(league_id))['standings']['results']  
+    
+
+
+USE_THIS = "https://fantasy.premierleague.com/api/fixtures/" 
+
+
     
 
 

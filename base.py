@@ -12,7 +12,7 @@ class Player:
     team: int 
     ppg: float 
     owned_by: float 
-    composite_score: float 
+    composite_score: float                                                  
     sell_cost: float = None 
 
 @dataclass 
@@ -126,7 +126,6 @@ class ChipOptimiser(Optimiser):
         result_bench = self.generate_bench(self, players, bench_budget, positions_left, players, chip_type)
         return result_11+result_bench
 
-
 class RatingSystem: 
     players_weights = { 
         'form': 0.25, 
@@ -146,8 +145,5 @@ class RatingSystem:
     def get_team_rating(cls, team_information) -> float: 
         pass 
 
-def FDR(): 
-    # this might not even get made 
-    pass 
 
 
