@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from fpl import FPL 
 import requests 
 import mysql.connector 
-import json 
+import json  
 import sys    
 import os 
 import utils  
@@ -17,7 +17,7 @@ class WindowParent(QMainWindow):
     def __init__(self, previous_window, fpl): 
         super().__init__() 
         self.previous_window = previous_window  
-        self.fpl = fpl  
+        self.fpl = fpl 
         self.settings = Settings()  
         self.setStyleSheet(f'background-color: {self.settings.colour_scheme.primary_colour}')  
         self.window_switcher = { 
@@ -36,7 +36,7 @@ class WindowParent(QMainWindow):
     
     def refresh(self): 
         self.close() 
-        self.new_window = self.window_switcher[self.window_id](fpl=self.fpl, previous_window=self.previous_window)   
+        self.new_window = self.window_switcher[self.window_id](fpl=self.fpl, previous_window=self.previous_window)  
 
     def open_window(self, window): 
         if window != 6: 

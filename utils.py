@@ -1,4 +1,3 @@
-import base 
 import time  
 import json   
 import os  
@@ -20,7 +19,7 @@ api_urls = {
 
 def update_static_data(session):  
     data = fetch(session, api_urls['static']) 
-    write_json(data, os.path.join(os.getcwd(), 'json_data', 'static.json')) 
+    write_json(data, os.path.join(os.getcwd(), 'json_data', 'static.json'))  
 
 def update_player_data(db_connection):  
     cursor = db_connection.cursor() 
@@ -120,6 +119,7 @@ def convert_position(position_id):
         4: 'Forward' 
     }[position_id]  
 
+""" 
 def create_user_object(session, cookies): 
     data = fetch(session, api_urls['me'], cookies=cookies)['player']
     return base.User( 
@@ -146,7 +146,7 @@ def create_player_object(player_id):
         data['selected_by_percent'], 
         0, 
     )
-
+""" 
 def connect_to_db(): 
     return mysql.connector.connect( 
         host='5.133.180.245', 
