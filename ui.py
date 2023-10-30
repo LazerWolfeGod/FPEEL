@@ -86,7 +86,7 @@ class CustomButton(QPushButton):
 
 class Settings: 
     def __init__(self): 
-        self.settings_path = os.path.join(os.getcwd(), 'json_data', 'settings.json')   
+        self.settings_path = os.path.join(os.getcwd(), 'json_data', 'settings.json')  
         try: 
             settings = utils.read_json(self.settings_path)  
         except json.JSONDecodeError: 
@@ -283,8 +283,8 @@ class LineupWindow(WindowParent):
         return base.ChipOptimiser.generate_team(players, budget, bench_importance, chip_type)   
     
     def seperate_lineup(self, arr): 
-        return arr[:11], arr[11:]   
-    
+        return arr[:11], arr[11:]    
+
     def setup_ui(self): 
         self.setFixedSize(1000, 1000) 
 
@@ -588,7 +588,7 @@ class SettingsWindow(WindowParent):
         self.font_widget.font_button.colour = 1 
         self.font_widget.font_button.setFont(QFont(self.settings.font, 8)) 
         self.font_widget.font_button.setText('Font') 
-        self.font_widget.font_button.clicked.connect(self.open_font_window)   
+        self.font_widget.font_button.clicked.connect(self.open_font_window)    
     
     def fill_sound_widget(self): 
         self.sound_widget.info_label = QtWidgets.QLabel(self.sound_widget) 
@@ -607,7 +607,7 @@ class SettingsWindow(WindowParent):
         self.sound_widget.volume_entry = QtWidgets.QLineEdit(self.sound_widget) 
         self.sound_widget.volume_entry.setGeometry(QtCore.QRect(250, 50, 100, 40)) 
         self.sound_widget.volume_entry.colour = 1 
-        self.sound_widget.volume_entry.setFont(QFont(self.settings.font, 8)) 
+        self.sound_widget.volume_entry.setFont(QFont(self.settings.font, 8))
         self.sound_widget.volume_entry.setText(str(self.settings.button_volume))  
 
         self.sound_widget.sound_box = QtWidgets.QComboBox(self.sound_widget) 
