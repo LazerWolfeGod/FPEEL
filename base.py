@@ -46,7 +46,7 @@ class Optimiser:
         2: 5, 
         3: 5,
         4: 3
-    }
+    } 
 
 class TransferOptimiser(Optimiser):  
     def generate_transfers(self, players, current_team, budget, max_transfers, number_of_suggestions=10): 
