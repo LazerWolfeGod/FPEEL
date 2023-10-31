@@ -172,10 +172,3 @@ class RatingSystem:
     def get_team_rating(cls, team_information) -> float: 
         pass  
 
-import utils 
-cursor = utils.connect_to_db().cursor() 
-cursor.execute('SELECT * FROM players') 
-data = cursor.fetchall() 
-cursor.close()   
-players = [Player(*x) for x in data]  
-print(players) 

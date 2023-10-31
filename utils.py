@@ -2,6 +2,7 @@ import time
 import json   
 import os  
 import mysql.connector  
+import base 
 import selenium 
 import requests 
 
@@ -119,7 +120,7 @@ def convert_position(position_id):
         4: 'Forward' 
     }[position_id]  
 
-""" 
+
 def create_user_object(session, cookies): 
     data = fetch(session, api_urls['me'], cookies=cookies)['player']
     return base.User( 
@@ -146,7 +147,7 @@ def create_player_object(player_id):
         data['selected_by_percent'], 
         0, 
     )
-""" 
+
 def connect_to_db(): 
     return mysql.connector.connect( 
         host='5.133.180.245', 
