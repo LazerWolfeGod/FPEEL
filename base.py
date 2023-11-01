@@ -164,3 +164,7 @@ class RatingSystem:
     @classmethod 
     def get_team_rating(cls, team_information) -> float: 
         pass  
+<<<<<<< HEAD
+=======
+
+>>>>>>> 99991141aa5e8b404917452140644d5229d9c6f9

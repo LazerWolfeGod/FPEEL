@@ -8,7 +8,7 @@ class FPL:
         self.session = session 
         self.user = user 
         self.session = requests.Session()   
-        #self.db_connection = utils.connect_to_db()    
+        self.db_connection = utils.connect_to_db()    
     
     def get_all_players(self): 
         cursor = self.db_connection.cursor() 
