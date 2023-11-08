@@ -18,7 +18,8 @@ class WindowParent(QMainWindow):
         super().__init__() 
         self.previous_window = previous_window  
         self.fpl = fpl 
-        self.settings = Settings()  
+        self.settings = Settings()   
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose) 
         self.setStyleSheet(f'background-color: {self.settings.colour_scheme.primary_colour}')  
         self.window_switcher = { 
             0: LoginWindow, 
@@ -354,7 +355,7 @@ class LineupWindow(WindowParent):
         else: 
             self.list_button.setStyleSheet('background-color: rgb(0, 255, 0);')  
             self.apply_colour(self.formation_button) 
-            self.stacked_layout.setCurrentWidget(self.list_widget)  
+            self.stacked_layout.setCurrentWidget(self.list_widget) 
 
     def setup_list_view(self):  
         layout = QVBoxLayout() 
