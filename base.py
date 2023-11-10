@@ -13,7 +13,14 @@ class Player:
     ppg: float 
     owned_by: float 
     composite_score: float                                                  
-    sell_cost: float = None 
+    sell_cost: float = None  
+
+@dataclass 
+class User: 
+    id: int 
+    name: str   
+    email: str  
+    cookies: dict  
 
 @dataclass 
 class User: 
@@ -117,8 +124,6 @@ class TransferOptimiser(Optimiser):
         transfers = [player for player in players if pulp.value(add_player[player.player_id])==1] + [player for player in current_team if pulp.value(remove_player[player.player_id])==1] 
         budget_used = sum([player.cost for player in transfers if player not in current_team]) 
         return sorted(transfers, key=lambda x: x.position), budget_used 
-    
-
 
 class ChipOptimiser(Optimiser): 
     chip_switcher = { 
@@ -141,7 +146,7 @@ class ChipOptimiser(Optimiser):
             raise ValueError('Bench importance value must be between 0 and 1') 
         min_multi = 0.83 
         max_multi = (220/3)/100 
-        return budget*(min_multi + (max_multi - min_multi)*bench_importance)  
+        return budget*(min_multi + (max_multi - min_multi)*bench_importance) 
 
     def get_position_requirements(cls, team: list): 
         return {
