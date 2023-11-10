@@ -20,7 +20,7 @@ class User:
     id: int 
     name: str   
     email: str  
-    cookies: dict  
+    cookies: dict 
 
 @dataclass 
 class League: 
