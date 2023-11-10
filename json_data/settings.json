@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
+    "primary_colour": "rgb(24, 123, 322);",
+    "secondary_colour": "rgb(255, 0, 0);",
+=======
     "primary_colour": "rgb(12, 255, 192);",
     "secondary_colour": "rgb(255, 255, 232);",
+>>>>>>> 9c9df95b56070333ddcba15570de8273bc27ea7f
     "font": "Calibri",
     "button_sound": "sounds/button.wav",
     "button_volume": 50
