@@ -16,13 +16,62 @@ class Player:
     sell_cost: float = None 
 
 @dataclass 
+class User: 
+    id: int 
+    name: str   
+    email: str  
+    cookies: dict  
+
+@dataclass 
 class League: 
     id: int 
     name: str 
     standings: list 
 
 class DB_Handler: 
-    pass 
+    pass  
+
+class Queue: 
+    def __init__(self): 
+        self.items = [] 
+    
+    def enqueue(self, item): 
+        self.items.append(item) 
+
+    def dequeue(self): 
+        self.items.pop(0)
+
+    @property 
+    def front(self): 
+        return self.items[0] 
+    
+    @property 
+    def back(self): 
+        return self.items[-1] 
+
+    def is_empty(self): 
+        return not self.items 
+
+class Stack: 
+    def __init__(self): 
+        self.items = []   
+    
+    def push(self, item): 
+        self.items.append(item) 
+    
+    def pop(self): 
+        self.items.pop()   
+
+    @property    
+    def top(self): 
+        return self.items[-1] 
+    
+    @property 
+    def bottom(self): 
+        return self.items[0]                
+    
+    def is_empty(self): 
+        return not self.items 
 
 class Optimiser: 
     lineup_size = 11 
@@ -39,7 +88,7 @@ class Optimiser:
         2: 5, 
         3: 5,
         4: 3
-    }   
+    } 
 
 class TransferOptimiser(Optimiser):  
     def generate_transfers(self, players, current_team, budget, max_transfers, number_of_suggestions=10): 
@@ -164,7 +213,3 @@ class RatingSystem:
     @classmethod 
     def get_team_rating(cls, team_information) -> float: 
         pass  
-<<<<<<< HEAD
-=======
-
->>>>>>> 99991141aa5e8b404917452140644d5229d9c6f9
