@@ -18,11 +18,11 @@ api_urls = {
 
 def write_json(data: json, path: str): 
     with open(path, 'w') as f: 
-        json.dump(data, f, indent=4) 
+        json.dump(data, f, indent=4)  
 
 def read_json(path): 
     with open(path, 'r') as f: 
-        return json.load(f) 
+        return json.load(f)  
 
 def fetch(session, url, cookies=None, retries=2, cooldown=1):
     retries_count = 0 

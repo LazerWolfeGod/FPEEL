@@ -47,7 +47,7 @@ class WindowParent(QMainWindow):
     
     def back_window(self): 
         if self.previous_window: 
-            self.open_window(self.previous_window)  
+            self.open_window(self.previous_window) 
 
     def apply_colour(self, widget):  
         if widget.children(): 
@@ -66,7 +66,6 @@ class WindowParent(QMainWindow):
     
     def relayout(self, widget): 
         QWidget().setLayout(widget.layout()) 
-        
 
 class CustomButton(QPushButton): 
     def __init__(self, parent=None): 
