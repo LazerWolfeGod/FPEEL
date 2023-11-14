@@ -3,7 +3,7 @@ function linear_search(arr, search_term){
         if (arr[i] == search_term) return i;
     }
     return -1; 
-} 
+}   
 
 function binary_search(arr, search_term){ 
     mid = Math.floor(arr.length/2);  
@@ -11,7 +11,7 @@ function binary_search(arr, search_term){
     else if (arr[mid] > search_term) return binary_search(arr.slice(0, mid), search_term); 
     else if (arr[mid] < search_term) return binary_search(arr.slic(mid, -1), search_term) 
     else return -1; 
-} 
+}  
 
 function merge(left, right){ 
     let result = []; 
