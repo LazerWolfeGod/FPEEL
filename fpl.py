@@ -8,8 +8,8 @@ class FPL:
         self.session = session 
         self.user = user 
         self.session = requests.Session()   
-        #self.db_connection = utils.connect_to_db()    
-    
+        self.db_connection = utils.connect_to_db()     
+
     def get_all_players(self): 
         cursor = self.db_connection.cursor() 
         cursor.execute('SELECT * FROM players') 
@@ -51,8 +51,8 @@ class FPL:
         utils.write_json(data, os.path.join(os.getcwd(), 'json_data', type+'.json'))   
     
     # returns the standings in json format of a league when inputted with the league id 
-    def get_league_standings(self, league_id): 
-        return utils.fetch(self.session, utils.api_urls['league'].format(league_id))['standings']['results']  
+    def get_league_standings(self, league_id):   
+        return utils.fetch(self.session, utils.api_urls['league'].format(league_id)+'standings/')['standings']['results'] 
     
 
 

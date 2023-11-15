@@ -2,7 +2,7 @@ from PyQt6 import QtCore, QtWidgets, QtGui, QtMultimedia
 from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QColorDialog, QFontDialog, QVBoxLayout, QHBoxLayout, QComboBox, QStackedLayout 
 from PyQt6.QtGui import QFont, QPixmap, QPainter, QColor 
 from PyQt6.QtCore import QUrl 
-from PyQt6.QtMultimedia import QSoundEffect   
+from PyQt6.QtMultimedia import QSoundEffect     
 from dataclasses import dataclass  
 from fpl import FPL 
 import requests 
@@ -14,7 +14,7 @@ import utils
 import base   
 
 class WindowParent(QMainWindow): 
-    def __init__(self, previous_window, fpl): 
+    def __init__(self, previous_window, fpl):   
         super().__init__() 
         self.previous_window = previous_window  
         self.fpl = fpl 
@@ -37,7 +37,7 @@ class WindowParent(QMainWindow):
     
     def refresh(self): 
         self.close() 
-        self.new_window = self.window_switcher[self.window_id](fpl=self.fpl, previous_window=self.previous_window)  
+        self.new_window = self.window_switcher[self.window_id](fpl=self.fpl, previous_window=self.previous_window)    
 
     def open_window(self, window): 
         if window != 6: 
@@ -47,7 +47,7 @@ class WindowParent(QMainWindow):
     
     def back_window(self): 
         if self.previous_window: 
-            self.open_window(self.previous_window) 
+            self.open_window(self.previous_window)  
 
     def apply_colour(self, widget):  
         if widget.children(): 
@@ -66,6 +66,7 @@ class WindowParent(QMainWindow):
     
     def relayout(self, widget): 
         QWidget().setLayout(widget.layout()) 
+        
 
 class CustomButton(QPushButton): 
     def __init__(self, parent=None): 
@@ -82,7 +83,7 @@ class CustomButton(QPushButton):
 
     def handle_clicked(self): 
         if self.parent: 
-            self.play_sound(self.parent.settings.button_volume) 
+            self.play_sound(self.parent.settings.button_volume)  
 
 class Settings: 
     def __init__(self): 
@@ -127,63 +128,63 @@ class LoginWindow(WindowParent):
     def __init__(self, previous_window=None, fpl=None): 
         super().__init__(previous_window, fpl)    
         self.session = requests.Session() 
-        self.window_id = 0   
+        self.window_id = 0    
         self.setup_ui() 
         self.apply_colours(self) 
     
     def setup_ui(self): 
-        self.setFixedSize(750, 750) 
-        self.title_label = QtWidgets.QLabel(self) 
-        self.title_label.setGeometry(QtCore.QRect(0, 15, 750, 75)) 
-        self.title_label.colour = 1 
-        self.title_label.setFont(QFont(self.settings.font, 30))  
-        self.title_label.setText('FPL Helper') 
+            self.setFixedSize(750, 750) 
+            self.title_label = QtWidgets.QLabel(self) 
+            self.title_label.setGeometry(QtCore.QRect(0, 15, 750, 75)) 
+            self.title_label.colour = 1 
+            self.title_label.setFont(QFont(self.settings.font, 30))  
+            self.title_label.setText('FPL Helper') 
 
-        self.email_edit = QtWidgets.QLineEdit(self) 
-        self.email_edit.setGeometry(QtCore.QRect(75, 135, 300, 30)) 
-        self.email_edit.colour = 1 
-        self.email_edit.setPlaceholderText('Enter Email') 
-        self.email_edit.setFont(QFont(self.settings.font, 12)) 
-        self.email_edit.setText('harryespley@outlook.com') 
+            self.email_edit = QtWidgets.QLineEdit(self) 
+            self.email_edit.setGeometry(QtCore.QRect(75, 135, 300, 30)) 
+            self.email_edit.colour = 1 
+            self.email_edit.setPlaceholderText('Enter Email') 
+            self.email_edit.setFont(QFont(self.settings.font, 12)) 
+            self.email_edit.setText('harryespley@outlook.com') 
 
-        self.password_edit = QtWidgets.QLineEdit(self) 
-        self.password_edit.setGeometry(QtCore.QRect(75, 210, 300, 30)) 
-        self.password_edit.colour = 1 
-        self.password_edit.setPlaceholderText('Enter Password') 
-        self.password_edit.setFont(QFont(self.settings.font, 12)) 
-        self.password_edit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)  
-        self.password_edit.setText('James141005!') 
+            self.password_edit = QtWidgets.QLineEdit(self) 
+            self.password_edit.setGeometry(QtCore.QRect(75, 210, 300, 30)) 
+            self.password_edit.colour = 1 
+            self.password_edit.setPlaceholderText('Enter Password') 
+            self.password_edit.setFont(QFont(self.settings.font, 12)) 
+            self.password_edit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)  
+            self.password_edit.setText('James141005!') 
 
-        self.email_label = QtWidgets.QLabel(self) 
-        self.email_label.setGeometry(QtCore.QRect(75, 105, 300, 30)) 
-        self.email_label.colour = 0  
-        self.email_label.setText('Email:') 
-        self.email_label.setFont(QFont(self.settings.font, 12))   
+            self.email_label = QtWidgets.QLabel(self) 
+            self.email_label.setGeometry(QtCore.QRect(75, 105, 300, 30)) 
+            self.email_label.colour = 0  
+            self.email_label.setText('Email:') 
+            self.email_label.setFont(QFont(self.settings.font, 12))   
 
-        self.password_label = QtWidgets.QLabel(self) 
-        self.password_label.setGeometry(QtCore.QRect(75, 180, 300, 30)) 
-        self.password_label.colour = 0 
-        self.password_label.setText('Password:') 
-        self.password_label.setFont(QFont(self.settings.font, 12))   
+            self.password_label = QtWidgets.QLabel(self) 
+            self.password_label.setGeometry(QtCore.QRect(75, 180, 300, 30)) 
+            self.password_label.colour = 0 
+            self.password_label.setText('Password:') 
+            self.password_label.setFont(QFont(self.settings.font, 12))   
 
-        self.error_label = QtWidgets.QLabel(self) 
-        self.error_label.setGeometry(QtCore.QRect(150, 105, 300, 30)) 
-        self.error_label.setStyleSheet(f'color: {self.settings.colour_scheme.error_colour}')
-        self.error_label.setFont(QFont(self.settings.font, 12))  
+            self.error_label = QtWidgets.QLabel(self) 
+            self.error_label.setGeometry(QtCore.QRect(150, 105, 300, 30)) 
+            self.error_label.setStyleSheet(f'color: {self.settings.colour_scheme.error_colour}')
+            self.error_label.setFont(QFont(self.settings.font, 12))  
 
-        self.login_button = CustomButton(self) 
-        self.login_button.setGeometry(QtCore.QRect(75, 255, 300, 30)) 
-        self.login_button.colour = 1 
-        self.login_button.setText('Login') 
-        self.login_button.setFont(QFont(self.settings.font, 12)) 
-        self.login_button.clicked.connect(self.check_login) 
+            self.login_button = CustomButton(self) 
+            self.login_button.setGeometry(QtCore.QRect(75, 255, 300, 30)) 
+            self.login_button.colour = 1 
+            self.login_button.setText('Login') 
+            self.login_button.setFont(QFont(self.settings.font, 12)) 
+            self.login_button.clicked.connect(self.check_login) 
 
-        self.exit_button = CustomButton(self) 
-        self.exit_button.setGeometry(QtCore.QRect(75, 300, 300, 30)) 
-        self.exit_button.colour = 1 
-        self.exit_button.setText('Exit') 
-        self.exit_button.setFont(QFont(self.settings.font, 12)) 
-        self.exit_button.clicked.connect(lambda: self.open_window(5))    
+            self.exit_button = CustomButton(self) 
+            self.exit_button.setGeometry(QtCore.QRect(75, 300, 300, 30)) 
+            self.exit_button.colour = 1 
+            self.exit_button.setText('Exit') 
+            self.exit_button.setFont(QFont(self.settings.font, 12)) 
+            self.exit_button.clicked.connect(lambda: self.open_window(5))    
 
     def check_login(self): 
         cookies = utils.get_account_cookies(self.session, self.email_edit.text(), self.password_edit.text())  
@@ -199,8 +200,7 @@ class LoginWindow(WindowParent):
 class MainWindow(WindowParent): 
     def __init__(self, previous_window, fpl): 
         super().__init__(previous_window, fpl)  
-        self.window_id = 1 
-        utils.update_static_data(self.fpl.session) 
+        self.window_id = 1   
         self.setup_ui()   
         self.apply_colours(self) 
     
@@ -216,7 +216,15 @@ class MainWindow(WindowParent):
         self.rank_label.setGeometry(QtCore.QRect(350, 150, 250, 50)) 
         self.rank_label.colour = 0 
         self.rank_label.setFont(QFont(self.settings.font, 16)) 
-        self.rank_label.setText(f'Current Rank: {self.fpl.get_current_user_rank()}') 
+        self.rank_label.setText(f'Current Rank: {self.fpl.get_current_user_rank()}')  
+
+        self.update_players_button = CustomButton(self) 
+        self.update_players_button.setGeometry(QtCore.QRect(25, 150, 250, 50)) 
+        self.update_players_button.colour = 1 
+        self.update_players_button.setFont(QFont(self.settings.font, 8)) 
+        self.update_players_button.setText('Update Player Data') 
+        self.update_players_button.clicked.connect(lambda: utils.update_player_table(self.fpl.db_connection, self.fpl.session)) 
+        self.update_players_button.clicked.connect(lambda: utils.update_composite_scores(self.fpl.db_connection)) 
 
         self.lineup_button = CustomButton(self) 
         self.lineup_button.setGeometry(QtCore.QRect(300, 250, 400, 80)) 
@@ -258,7 +266,7 @@ class LineupWindow(WindowParent):
         self.window_id = 2   
         self.column_headers = ['Name', 'Team', 'Position', 'Price', 'Total Points', 'PPG']  
         picks_json = self.fpl.get_current_user_picks() 
-        picks = [utils.create_player_object(x['element']) for x in picks_json]   
+        picks = [utils.create_player_object(fpl.db_connection, x['element']) for x in picks_json]   
         for index, x in enumerate(picks): 
             x.sell_cost = picks_json[index]['selling_price']/10 
         self.starting_eleven = picks[:11] 
@@ -442,9 +450,9 @@ class LeagueWindow(WindowParent):
         self.league_table.clearContents() 
         league = self.league_chooser.currentText() 
         league_id = [x for x in self.leagues if x['name'] == league][0]['id'] 
-        standings = self.fpl.get_league_standings(league_id)  
+        standings = self.fpl.get_league_standings(league_id)   
         self.league_table.setRowCount(len(standings))   
-        for x in standings:  
+        for x in standings:   
             self.league_table.setItem(x['rank']-1, 0, QtWidgets.QTableWidgetItem(str(x['rank']))) 
             self.league_table.setItem(x['rank']-1, 1, QtWidgets.QTableWidgetItem(x['player_name'])) 
             self.league_table.setItem(x['rank']-1, 2, QtWidgets.QTableWidgetItem(x['entry_name'])) 

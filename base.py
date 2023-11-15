@@ -201,20 +201,17 @@ class ChipOptimiser(Optimiser):
         return result_11+result_bench
 
 class RatingSystem: 
-    players_weights = { 
-        'form': 0.25, 
-        'fixture_diff': 0.25, 
-        'ppg': 0.4, 
-        'xga': 0.1, 
-        'total_points': 0.1, 
+    players_weights = {
+        'ppg': 0.5, 
+        'total_points': 0.4, 
         'ownership_percentage': 0.1
     } 
-    team_weights = {}
+    team_weights = {} 
 
     @classmethod 
-    def get_player_rating(cls, player_information) -> float:  
-        return sum([getattr(player_information, key)*cls.players_weights[key] for key in cls.players_weights.keys()]) 
-    
+    def get_player_rating(cls, ppg, total_points, ownership_percentage): 
+        return ppg*cls.players_weights['ppg'] + total_points*cls.players_weights['total_points'] + ownership_percentage*cls.players_weights['ownership_percentage'] 
+
     @classmethod 
     def get_team_rating(cls, team_information) -> float: 
         pass  
