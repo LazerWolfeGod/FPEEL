@@ -2,6 +2,6 @@
     "primary_colour": "rgb(224, 124, 232);",
     "secondary_colour": "rgb(0, 24, 132);",
     "font": "Arial",
-    "button_sound": "none",
+    "button_sound": "click.wav",
     "button_volume": 50
 }
