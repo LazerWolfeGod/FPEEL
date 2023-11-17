@@ -23,13 +23,6 @@ class User:
     cookies: dict 
 
 @dataclass 
-class User: 
-    id: int 
-    name: str   
-    email: str  
-    cookies: dict  
-
-@dataclass 
 class League: 
     id: int 
     name: str 
